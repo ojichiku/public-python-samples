@@ -1,0 +1,18 @@
+# 改行コードはテキストを自動判定し LF に正規化
+* text=auto eol=lf
+
+# 画像/バイナリは差分をバイナリ扱い
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+
+# アーカイブ/モデル/その他大きなバイナリ
+*.zip binary
+*.tar binary
+*.gz  binary
+*.7z  binary
+
+# ノートブックはテキスト扱いだが大差分を避けたい場合は下記を有効化
+# *.ipynb -diff

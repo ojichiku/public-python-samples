@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# 仮想環境（各サンプルで任意利用）
+.venv/
+venv/
+ENV/
+env/
+
+# パッケージング/ビルド
+build/
+dist/
+*.egg-info/
+
+# 実行時生成物
+outputs/
+logs/
+
+# ノートブック
+.ipynb_checkpoints/
+
+# データ（例：サンプルが作成する一時/大容量ファイル）
+data/*.tmp
+data/*.cache
+data/*.zip
+
+# エディタ/IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
