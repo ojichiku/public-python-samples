@@ -1,42 +1,50 @@
-# Python
+# --- Python build / cache ---
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
 *.so
-.pytest_cache/
-.mypy_cache/
-.coverage
-htmlcov/
-
-# 仮想環境（各サンプルで任意利用）
-.venv/
-venv/
-ENV/
-env/
-
-# パッケージング/ビルド
+.build/
 build/
 dist/
+*.egg
 *.egg-info/
+.eggs/
+.pip-wheel-metadata/
+wheels/
 
-# 実行時生成物
-outputs/
-logs/
+# --- Virtual env (uv / venv) ---
+.venv/
+.uv/                # uv が作る一時領域を使う場合
+# .python-version   # pyenv 等を使わないならコメントのまま
 
-# ノートブック
-.ipynb_checkpoints/
+# --- Packaging specs ---
+*.spec              # PyInstaller spec
+.nuitka-cache/      # Nuitka キャッシュ
+.cache/             # 一部ツールの汎用キャッシュ
 
-# データ（例：サンプルが作成する一時/大容量ファイル）
-data/*.tmp
-data/*.cache
-data/*.zip
+# --- Tools / Linters / Type checkers ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
 
-# エディタ/IDE
+# --- Editors / IDE ---
 .vscode/
 .idea/
 *.code-workspace
 
-# OS
+# --- OS junk ---
 .DS_Store
 Thumbs.db
+
+# --- Logs / temp ---
+*.log
+*.tmp
+*.bak
+
+# --- Project specific (必要なら解除) ---
+# /docs/_build/     # Sphinx等
+# /examples/output/ # サンプル出力物

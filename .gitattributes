@@ -1,18 +1,38 @@
-# 改行コードはテキストを自動判定し LF に正規化
+# すべてのテキストを LF に正規化（WSL/CIで安定）
 * text=auto eol=lf
 
-# 画像/バイナリは差分をバイナリ扱い
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.gif binary
-*.webp binary
+# 代表的テキスト拡張子は明示（念のため）
+*.py      text eol=lf
+*.md      text eol=lf
+*.toml    text eol=lf
+*.yaml    text eol=lf
+*.yml     text eol=lf
+*.json    text eol=lf
+*.ini     text eol=lf
+*.cfg     text eol=lf
+*.csv     text eol=lf
+*.sh      text eol=lf
 
-# アーカイブ/モデル/その他大きなバイナリ
-*.zip binary
-*.tar binary
-*.gz  binary
-*.7z  binary
+# バイナリは改行変換しない
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.ico     binary
+*.pdf     binary
+*.zip     binary
+*.7z      binary
+*.exe     binary
+*.dll     binary
 
-# ノートブックはテキスト扱いだが大差分を避けたい場合は下記を有効化
-# *.ipynb -diff
+# 競合しやすい生成物は、基本コミットしない方針（.gitignore側で除外）
+# どうしても必要な場合だけ、LFSや配布用Releaseで管理する
+
+# --- (任意) Git LFS を使う場合の例。必要になったらコメント解除 ---
+# *.png filter=lfs diff=lfs merge=lfs -text
+# *.jpg filter=lfs diff=lfs merge=lfs -text
+
+# --- (任意) アーカイブ作成時に含めないファイル（GitHub Releaseのソースtar用） ---
+# .github export-ignore
+# tests/ export-ignore
+# .pre-commit-config.yaml export-ignore
