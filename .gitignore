@@ -15,13 +15,18 @@ wheels/
 
 # --- Virtual env (uv / venv) ---
 .venv/
-.uv/                # uv が作る一時領域を使う場合
-# .python-version   # pyenv 等を使わないならコメントのまま
+# uv が作る一時領域を使う場合
+.uv/
+# pyenv 等を使わないならコメントのまま
+.python-version
 
 # --- Packaging specs ---
-*.spec              # PyInstaller spec
-.nuitka-cache/      # Nuitka キャッシュ
-.cache/             # 一部ツールの汎用キャッシュ
+# PyInstaller spec
+*.spec
+# Nuitka キャッシュ
+.nuitka-cache/
+# 一部ツールの汎用キャッシュ
+.cache/
 
 # --- Tools / Linters / Type checkers ---
 .pytest_cache/
