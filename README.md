@@ -16,10 +16,11 @@
 
 ## サンプル一覧
 
-| ディレクトリ                                                       | 概要                                                                            | ブログ記事                                             |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| [samples/password-generator-cli](./samples/password-generator-cli) | パスワード生成ツールと PyInstaller を使ったPythonコード → EXE化のサンプルです。 | https://www.wanchiku.com/pyinstaller-chatgpt-password/ |
-| [samples/file-renamer-cli](./samples/file-renamer-cli)             | Codexを使ってコーディングしないで作った「ファイル名一括リネーマーツール」です。 | https://www.wanchiku.com/codex-uv-python-cli-sample/   |
+| ディレクトリ                                                       | 概要                                                                                          | ブログ記事                                                |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [samples/password-generator-cli](./samples/password-generator-cli) | パスワード生成ツールと PyInstaller を使ったPythonコード → EXE化のサンプルです。               | https://www.wanchiku.com/pyinstaller-chatgpt-password/    |
+| [samples/file-renamer-cli](./samples/file-renamer-cli)             | Codexを使ってコーディングしないで作った「ファイル名一括リネーマーツール」です。               | https://www.wanchiku.com/codex-uv-python-cli-sample/      |
+| [samples/logfilter-cli](./samples/logfilter-cli)                   | CodexでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「ログフィルターCLIツール」です。 | https://www.wanchiku.com/agents-md-autogen-logfilter-cli/ |
 
 
 ---
