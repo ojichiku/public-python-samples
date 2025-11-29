@@ -1,0 +1,22 @@
+2025-01-01 INFO boot sequence started
+2025-01-01 debug env=prod commit=abc123
+2025-01-02 WARN disk usage high on host-a
+2025-01-02 INFO disk usage normalized
+2025-01-03 ERROR payment queue stalled
+2025-01-03 INFO retry scheduled
+2025-01-04 INFO BACKUP COMPLETED
+2025-01-04 info backup verification passed
+2025-01-05 ERROR cache miss storm
+2025-01-05 CRITICAL database unavailable
+2025-01-06 INFO user signup id=100
+2025-01-06 INFO user signup id=101
+2025-01-07 WARN api latency p95=1200ms
+2025-01-07 DEBUG worker=2 job=refresh
+2025-01-08 INFO release v2.0 deployed
+2025-01-09 ERROR release rollback triggered
+2025-01-09 Info release rollback complete
+2025-01-10 INFO nightly report sent
+2025-01-11 WARN billing threshold reached
+NoDateLine INFO missing prefix
+2025-01-12 error fraud detection alert
+2025-01-13 INFO audit trail archived

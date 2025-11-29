@@ -47,6 +47,7 @@ Thumbs.db
 
 # --- Logs / temp ---
 *.log
+!samples/logfilter-cli/tests/data/sample.log
 *.tmp
 *.bak
 
