@@ -30,14 +30,24 @@ uv sync --no-dev
 ```
 
 ## 使い方
-最小例（キーワードフィルタのみ、標準出力へ出力）:
+セットアップ方法に応じて 2 通りの呼び出し方を用意しています。
+
+### 方法A: モジュールとして直接実行（最小構成）
 ```
+cd samples/logfilter-cli
+PYTHONPATH=src uv run python -m logfilter_cli.cli log.txt --contains ERROR
+```
+
+### 方法B: スクリプトとして実行（編集インストール済み）
+```
+cd samples/logfilter-cli
+uv pip install -e .
 uv run logfilter-cli log.txt --contains ERROR
 ```
 
-日付フィルタを含む例（範囲は境界値を含む）:
+日付フィルタを含む例（どちらの方法でも引数は同じ）:
 ```
-uv run logfilter-cli log.txt \
+uv run -m logfilter_cli.cli log.txt \
   --contains ERROR \
   --date-from 2025-11-01 \
   --date-to 2025-11-03 \

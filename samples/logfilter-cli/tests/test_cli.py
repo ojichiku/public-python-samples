@@ -13,6 +13,9 @@ import pytest
 
 from logfilter_cli import cli
 
+DATA_DIR = Path(__file__).with_name("data")
+SAMPLE_LOG = DATA_DIR / "sample.log"
+
 
 def test_cli_filters_keyword_to_stdout(tmp_path, capsys):
     input_path = tmp_path / "input.log"
@@ -74,3 +77,29 @@ def test_cli_errors_on_missing_input_file(tmp_path):
 
     with pytest.raises(SystemExit):
         cli.main([str(missing_path), "--contains", "ERROR"])
+
+
+def test_cli_filters_prepared_sample_data(capsys):
+    assert SAMPLE_LOG.exists()
+
+    exit_code = cli.main(
+        [
+            str(SAMPLE_LOG),
+            "--contains",
+            "error",
+            "--date-from",
+            "2025-01-03",
+            "--date-to",
+            "2025-01-12",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert captured.err == ""
+    assert captured.out == (
+        "2025-01-03 ERROR payment queue stalled\n"
+        "2025-01-05 ERROR cache miss storm\n"
+        "2025-01-09 ERROR release rollback triggered\n"
+        "2025-01-12 error fraud detection alert\n"
+    )
