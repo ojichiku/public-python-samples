@@ -13,6 +13,9 @@ if str(SRC_DIR) not in sys.path:
 
 from csvfilter_cli import cli
 
+DATA_DIR = Path(__file__).with_name("data")
+SAMPLE_CSV = DATA_DIR / "sample.csv"
+
 
 def run_cli(args: list[str], capsys: pytest.CaptureFixture[str]) -> tuple[int, str, str]:
     code = cli.main(args)
@@ -159,3 +162,27 @@ def test_zero_match_outputs_message(tmp_path: Path, capsys: pytest.CaptureFixtur
     assert code == 0
     assert out == "name\n"
     assert "0 rows matched" in err
+
+
+def test_cli_filters_prepared_sample_csv(capsys: pytest.CaptureFixture[str]) -> None:
+    assert SAMPLE_CSV.exists()
+
+    code, out, err = run_cli(
+        [
+            "--input",
+            str(SAMPLE_CSV),
+            "--and",
+            "status:regex:^active$",
+            "--and",
+            "city:contains:Tokyo",
+        ],
+        capsys,
+    )
+
+    assert code == 0
+    assert err == ""
+    assert out == (
+        "id,name,status,score,city\n"
+        "1,Alice,active,89,Tokyo\n"
+        "10,Judy,active,80,Tokyo\n"
+    )
