@@ -1,15 +1,9 @@
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
 
-# src を import パスに追加
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SRC_DIR = PROJECT_ROOT / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
 
 from csvfilter_cli.filters import build_condition
 from csvfilter_cli.io import CsvFilterError, FilterBinding, filter_csv
@@ -23,7 +17,11 @@ def test_filter_csv_with_header(tmp_path: Path) -> None:
     stats = filter_csv(
         input_path=src,
         output_path=dst,
-        filters=[FilterBinding(column="status", condition=build_condition("regex", "^active$"))],
+        filters=[
+            FilterBinding(
+                column="status", condition=build_condition("regex", "^active$")
+            )
+        ],
         delimiter=",",
         quotechar='"',
         no_header=False,
@@ -43,7 +41,9 @@ def test_filter_csv_no_header_skips_short_rows(tmp_path: Path) -> None:
     stats = filter_csv(
         input_path=src,
         output_path=dst,
-        filters=[FilterBinding(column=1, condition=build_condition("contains", "b"))],  # 0 始まりの列インデックス
+        filters=[
+            FilterBinding(column=1, condition=build_condition("contains", "b"))
+        ],  # 0 始まりの列インデックス
         delimiter=",",
         quotechar='"',
         no_header=True,
@@ -64,7 +64,11 @@ def test_filter_csv_missing_header_column_raises(tmp_path: Path) -> None:
         filter_csv(
             input_path=src,
             output_path=dst,
-            filters=[FilterBinding(column="city", condition=build_condition("contains", "Tokyo"))],
+            filters=[
+                FilterBinding(
+                    column="city", condition=build_condition("contains", "Tokyo")
+                )
+            ],
             delimiter=",",
             quotechar='"',
             no_header=False,

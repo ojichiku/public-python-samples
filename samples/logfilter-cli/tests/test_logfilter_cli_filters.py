@@ -32,7 +32,9 @@ def test_keyword_filter_respects_case_sensitive_flag():
     ]
 
     insensitive = [e for e in entries if filters.keyword_match(e, "error")]
-    sensitive = [e for e in entries if filters.keyword_match(e, "error", case_sensitive=True)]
+    sensitive = [
+        e for e in entries if filters.keyword_match(e, "error", case_sensitive=True)
+    ]
 
     assert len(insensitive) == 1
     assert len(sensitive) == 0
@@ -49,7 +51,9 @@ def test_date_filter_is_inclusive_and_skips_missing_dates():
     in_range = [
         e
         for e in entries
-        if filters.date_in_range(e, date_from=dt.date(2025, 11, 1), date_to=dt.date(2025, 11, 2))
+        if filters.date_in_range(
+            e, date_from=dt.date(2025, 11, 1), date_to=dt.date(2025, 11, 2)
+        )
     ]
 
     assert {e.raw for e in in_range} == {

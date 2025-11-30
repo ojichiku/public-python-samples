@@ -35,8 +35,12 @@ def build_parser() -> argparse.ArgumentParser:
         dest="keyword",
         help="部分一致で探すキーワード（大文字小文字は無視）",
     )
-    ap.add_argument("--date-from", type=_parse_date, help="YYYY-MM-DD 形式の開始日（含む）")
-    ap.add_argument("--date-to", type=_parse_date, help="YYYY-MM-DD 形式の終了日（含む）")
+    ap.add_argument(
+        "--date-from", type=_parse_date, help="YYYY-MM-DD 形式の開始日（含む）"
+    )
+    ap.add_argument(
+        "--date-to", type=_parse_date, help="YYYY-MM-DD 形式の終了日（含む）"
+    )
     ap.add_argument(
         "--output",
         type=Path,
@@ -63,7 +67,9 @@ def _load_entries(path: Path):
 def _write_output(entries, output: Path | None):
     """フィルタ結果を出力する。"""
 
-    lines = [entry.raw if entry.raw.endswith("\n") else f"{entry.raw}\n" for entry in entries]
+    lines = [
+        entry.raw if entry.raw.endswith("\n") else f"{entry.raw}\n" for entry in entries
+    ]
     if output is None:
         sys.stdout.writelines(lines)
     else:

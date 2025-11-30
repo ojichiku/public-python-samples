@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Callable, Protocol
+from typing import Protocol
 
 
 class Condition(Protocol):
-    def matches(self, value: str) -> bool:
-        ...
+    def matches(self, value: str) -> bool: ...
 
 
 def _compile_regex(pattern: str) -> re.Pattern[str]:
@@ -47,4 +46,3 @@ def all_conditions_match(value: str, conditions: list[Condition]) -> bool:
         if not cond.matches(value):
             return False
     return True
-

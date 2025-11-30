@@ -8,7 +8,9 @@ from collections.abc import Iterable
 from .parser import LogEntry
 
 
-def keyword_match(entry: LogEntry, keyword: str, *, case_sensitive: bool = False) -> bool:
+def keyword_match(
+    entry: LogEntry, keyword: str, *, case_sensitive: bool = False
+) -> bool:
     """部分一致によるキーワードフィルタを評価する。
 
     デフォルトは大文字小文字を区別しない。CLI の仕様に合わせ、1 キーワードのみを扱う。
@@ -57,7 +59,9 @@ def filter_entries(
 
     filtered: list[LogEntry] = []
     for entry in entries:
-        if keyword is not None and not keyword_match(entry, keyword, case_sensitive=case_sensitive):
+        if keyword is not None and not keyword_match(
+            entry, keyword, case_sensitive=case_sensitive
+        ):
             continue
         if not date_in_range(entry, date_from=date_from, date_to=date_to):
             continue

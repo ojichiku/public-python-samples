@@ -21,7 +21,9 @@ class Args:
 
 
 def parse_args(argv: list[str]) -> Args:
-    parser = argparse.ArgumentParser(description="指定条件に一致するCSV行のみを出力します。")
+    parser = argparse.ArgumentParser(
+        description="指定条件に一致するCSV行のみを出力します。"
+    )
     parser.add_argument("--input", required=True, help="入力CSVファイルのパス")
     parser.add_argument("--output", help="出力先ファイルのパス（未指定時は標準出力）")
     parser.add_argument(
@@ -95,7 +97,9 @@ def main(argv: list[str] | None = None) -> int:
         _error("0 rows matched")
 
     if args.verbose:
-        _error(f"processed={stats.processed}, matched={stats.matched}, skipped={stats.skipped}")
+        _error(
+            f"processed={stats.processed}, matched={stats.matched}, skipped={stats.skipped}"
+        )
 
     return 0
 
@@ -113,7 +117,9 @@ def _parse_filter(text: str, no_header: bool) -> FilterBinding:
         try:
             col_index = int(col)
         except ValueError as exc:
-            raise ValueError("ヘッダーなしの場合、列番号は整数で指定してください") from exc
+            raise ValueError(
+                "ヘッダーなしの場合、列番号は整数で指定してください"
+            ) from exc
         if col_index < 1:
             raise ValueError("列番号は1以上で指定してください")
         column_key: str | int = col_index - 1  # 内部では0始まり

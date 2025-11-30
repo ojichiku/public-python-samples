@@ -1,15 +1,8 @@
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pytest
-
-# src を import パスに追加
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-SRC_DIR = PROJECT_ROOT / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
 
 from csvfilter_cli import cli
 
@@ -17,13 +10,17 @@ DATA_DIR = Path(__file__).with_name("data")
 SAMPLE_CSV = DATA_DIR / "sample.csv"
 
 
-def run_cli(args: list[str], capsys: pytest.CaptureFixture[str]) -> tuple[int, str, str]:
+def run_cli(
+    args: list[str], capsys: pytest.CaptureFixture[str]
+) -> tuple[int, str, str]:
     code = cli.main(args)
     captured = capsys.readouterr()
     return code, captured.out, captured.err
 
 
-def test_contains_filters_rows(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_contains_filters_rows(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     csv_path = tmp_path / "input.csv"
     csv_path.write_text("name,status\nAlice,active\nBob,inactive\n", encoding="utf-8")
 
@@ -50,7 +47,9 @@ def test_regex_filters_rows(tmp_path: Path, capsys: pytest.CaptureFixture[str]) 
     assert out == "name,status\nAlice,active\n"
 
 
-def test_and_conditions_apply_all(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_and_conditions_apply_all(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     csv_path = tmp_path / "input.csv"
     csv_path.write_text(
         "name,status,city\nAlice,active,Tokyo\nAlice,inactive,Osaka\nBob,active,Tokyo\n",
@@ -89,9 +88,11 @@ def test_no_header_uses_one_based_indices_and_skips_short_rows(
     assert "skipped=1" in err  # 2列目がない行が1件スキップされる
 
 
-def test_custom_delimiter_and_quote(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_custom_delimiter_and_quote(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     csv_path = tmp_path / "input.tsv"
-    csv_path.write_text("name\tstatus\n\"A\"\t\"ok\"\n\"B\"\t\"ng\"\n", encoding="utf-8")
+    csv_path.write_text('name\tstatus\n"A"\t"ok"\n"B"\t"ng"\n', encoding="utf-8")
 
     code, out, _ = run_cli(
         [
@@ -111,7 +112,9 @@ def test_custom_delimiter_and_quote(tmp_path: Path, capsys: pytest.CaptureFixtur
     assert out == "name\tstatus\nA\tok\n"
 
 
-def test_invalid_operator_returns_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_invalid_operator_returns_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     csv_path = tmp_path / "input.csv"
     csv_path.write_text("name\nAlice\n", encoding="utf-8")
 
@@ -124,7 +127,9 @@ def test_invalid_operator_returns_error(tmp_path: Path, capsys: pytest.CaptureFi
     assert "無効な演算子" in err
 
 
-def test_missing_column_with_header_returns_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_missing_column_with_header_returns_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     csv_path = tmp_path / "input.csv"
     csv_path.write_text("name\nAlice\n", encoding="utf-8")
 
@@ -137,7 +142,9 @@ def test_missing_column_with_header_returns_error(tmp_path: Path, capsys: pytest
     assert "カラムが存在しません" in err
 
 
-def test_bad_regex_returns_error(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_bad_regex_returns_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     csv_path = tmp_path / "input.csv"
     csv_path.write_text("name\nAlice\n", encoding="utf-8")
 
@@ -150,7 +157,9 @@ def test_bad_regex_returns_error(tmp_path: Path, capsys: pytest.CaptureFixture[s
     assert "正規表現が不正" in err
 
 
-def test_zero_match_outputs_message(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_zero_match_outputs_message(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     csv_path = tmp_path / "input.csv"
     csv_path.write_text("name\nAlice\n", encoding="utf-8")
 
@@ -182,7 +191,5 @@ def test_cli_filters_prepared_sample_csv(capsys: pytest.CaptureFixture[str]) -> 
     assert code == 0
     assert err == ""
     assert out == (
-        "id,name,status,score,city\n"
-        "1,Alice,active,89,Tokyo\n"
-        "10,Judy,active,80,Tokyo\n"
+        "id,name,status,score,city\n1,Alice,active,89,Tokyo\n10,Judy,active,80,Tokyo\n"
     )

@@ -1,0 +1,23 @@
+[project]
+name = "public-python-samples"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pre-commit>=4.5.0",
+    "pytest>=9.0.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "samples/csvfilter-cli/src",
+  "samples/file-renamer-cli/src",
+  "samples/logfilter-cli/src",
+  "samples/password-generator-cli",
+]
+testpaths = [
+  "samples/csvfilter-cli/tests",
+  "samples/file-renamer-cli/tests",
+  "samples/logfilter-cli/tests",
+]
