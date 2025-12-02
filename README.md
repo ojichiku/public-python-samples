@@ -6,7 +6,7 @@
 サンプルには以下の特徴があります。
 - ディレクトリ単位で環境を分離
 - `pyproject.toml` と必要に応じて `uv.lock` をコミット（`.venv` 本体はコミットしない）
-- Codex（`codex/agent.md`, `codex/plan.md`）による自動生成対応のものと、非対応のものが混在
+- Codex（各ミニプロジェクト直下の `AGENTS.md`, `PLANS.md`）による自動生成対応のものと、非対応のものが混在
 - ブログ記事との相互リンクによって内容を補足
 
 ブログ: （https://www.wanchiku.com/）  
@@ -64,8 +64,8 @@ python -m <package> --help
 
 * ディレクトリ構成: `src/<package>/`, `tests/`, `pyproject.toml`
 * 品質維持: `ruff` + `black` + `pytest` を基本セットとして使用
-* CLI形式を推奨（`python -m <package>` または `[project.scripts]`）
-* 実行ファイルは GitHub Releases に添付し、リポジトリには含めない
+* CLI形式を推奨。`python -m <package>` で `src/<package>/__main__.py` を実行するか、`pyproject.toml` の `[project.scripts]` にエントリポイントを登録して `pip install -e .` 後にCLI名で呼び出します。
+* 実行ファイル（PyInstallerなどで作るバイナリ）はリポジトリに含めません。
 
 ---
 
@@ -73,33 +73,35 @@ python -m <package> --help
 
 本リポジトリには、Codex を利用して自動生成・拡張を行うサンプルと、手動で作成した通常のPythonサンプルの両方が含まれます。
 
-共通方針を定義するファイルは以下です。
+Codex対応サンプルでは、プロジェクト直下に以下の2ファイルを置いて運用します。
 
-* `codex/agent.md` : 実装ポリシー（命名規則、例外、関数長など）
-* `codex/plan.md` : 各サンプルの進行手順（テスト→実装→CLI→ドキュメント）
+* `AGENTS.md` : 実装ポリシー（命名規則、例外、関数長など）
+* `PLANS.md` : 各サンプルの進行手順（テスト→実装→CLI→ドキュメント）
 
-各サンプルに `samples/<name>/codex/` が存在する場合は、共通ファイルよりもそのローカル設定を優先します。  
+専用の `codex/` ディレクトリは作成していません。  
 Codexを使用しないサンプルでは、これらのファイルは含まれません。
 
 ---
 
 ## 推奨ツール
 
-各サンプルディレクトリで、以下のツールを利用できます。
+各サンプルディレクトリで、以下のツールを基本セットとして利用します。
 
 ```bash
-uv pip install pre-commit ruff black pytest pytest-cov mypy
+uv pip install pre-commit ruff black pytest
 pre-commit install
 ```
 
-`.pre-commit-config.yaml` は各サンプルディレクトリに配置します。
+`.pre-commit-config.yaml` はリポジトリ直下に置き、ルートで `pre-commit install` を実行して共有設定を適用します。  
+pre-commitの詳しい説明は下記のブログ記事を見てください。
+https://www.wanchiku.com/python-monorepo-precommit/  
 
 ---
 
 ## ブログとの連携
 
-* 各サンプルの README 冒頭に、対応するブログ記事のURLを明記します。
-* ブログ側にも GitHub 該当ディレクトリへのリンクを設置します。
+* 各サンプルのREADME冒頭に、対応するブログ記事のURLを明記します。
+* ブログ側にもGitHub該当ディレクトリへのリンクを設置します。
 * 更新内容はブログの記事末尾の更新履歴に反映します。
 
 ---
