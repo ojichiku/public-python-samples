@@ -33,7 +33,9 @@ def rename_files(directory: Path, prefix: str, digits: int) -> list[tuple[str, s
     return results
 
 
-def replace_in_filenames(directory: Path, find_text: str, replace_text: str) -> list[tuple[str, str]]:
+def replace_in_filenames(
+    directory: Path, find_text: str, replace_text: str
+) -> list[tuple[str, str]]:
     """ファイル名中の文字列を検索・置換する。"""
     if not find_text:
         raise ValueError("findに空文字は指定できません。")
@@ -67,17 +69,27 @@ def _ensure_directory(directory: Path) -> None:
 
 def _build_parser() -> argparse.ArgumentParser:
     """argparseのパーサー構築をまとめて記述する。"""
-    parser = argparse.ArgumentParser(prog="file_renamer", description="ファイル名の一括変更ツール")
+    parser = argparse.ArgumentParser(
+        prog="file_renamer", description="ファイル名の一括変更ツール"
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     rename_parser = subparsers.add_parser("rename", help="連番でリネームする")
-    rename_parser.add_argument("--dir", required=True, type=Path, help="対象ディレクトリ")
-    rename_parser.add_argument("--prefix", required=True, help="新しいファイル名のプレフィックス")
-    rename_parser.add_argument("--digits", type=int, default=3, help="連番の桁数 (デフォルト: 3)")
+    rename_parser.add_argument(
+        "--dir", required=True, type=Path, help="対象ディレクトリ"
+    )
+    rename_parser.add_argument(
+        "--prefix", required=True, help="新しいファイル名のプレフィックス"
+    )
+    rename_parser.add_argument(
+        "--digits", type=int, default=3, help="連番の桁数 (デフォルト: 3)"
+    )
     rename_parser.set_defaults(handler=_handle_rename)
 
     replace_parser = subparsers.add_parser("replace", help="ファイル名の一部を置換する")
-    replace_parser.add_argument("--dir", required=True, type=Path, help="対象ディレクトリ")
+    replace_parser.add_argument(
+        "--dir", required=True, type=Path, help="対象ディレクトリ"
+    )
     replace_parser.add_argument("--find", required=True, help="検索する文字列")
     replace_parser.add_argument("--replace", required=True, help="置換後の文字列")
     replace_parser.set_defaults(handler=_handle_replace)

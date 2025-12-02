@@ -9,7 +9,6 @@ from __future__ import annotations
 import dataclasses
 import datetime as dt
 import re
-from typing import Iterable
 
 DATE_PREFIX_PATTERN = re.compile(r"^(?P<date>\d{4}-\d{2}-\d{2})")
 

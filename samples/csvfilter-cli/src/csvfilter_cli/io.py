@@ -80,7 +80,9 @@ def _filter_no_header(
     stats: FilterStats,
 ) -> None:
     reader = csv.reader(infile, delimiter=delimiter, quotechar=quotechar)
-    writer = csv.writer(outfile, delimiter=delimiter, quotechar=quotechar, lineterminator="\n")
+    writer = csv.writer(
+        outfile, delimiter=delimiter, quotechar=quotechar, lineterminator="\n"
+    )
 
     for row in reader:
         stats.processed += 1
@@ -96,7 +98,9 @@ def _filter_no_header(
             pass
 
 
-def _row_matches_no_header(row: list[str], filters: list[FilterBinding]) -> tuple[bool, bool]:
+def _row_matches_no_header(
+    row: list[str], filters: list[FilterBinding]
+) -> tuple[bool, bool]:
     """戻り値: (マッチしたか, カラム不足でスキップすべきか)"""
     for binding in filters:
         if not isinstance(binding.column, int):
@@ -122,7 +126,9 @@ def _filter_with_header(
 ) -> None:
     reader = csv.DictReader(infile, delimiter=delimiter, quotechar=quotechar)
     if reader.fieldnames is None:
-        raise CsvFilterError("ヘッダー行が存在しません。`--no-header` を指定してください。")
+        raise CsvFilterError(
+            "ヘッダー行が存在しません。`--no-header` を指定してください。"
+        )
 
     _ensure_columns_exist(reader.fieldnames, filters)
 
@@ -147,7 +153,11 @@ def _filter_with_header(
 
 
 def _ensure_columns_exist(fieldnames: list[str], filters: list[FilterBinding]) -> None:
-    missing = {f.column for f in filters if isinstance(f.column, str) and f.column not in fieldnames}
+    missing = {
+        f.column
+        for f in filters
+        if isinstance(f.column, str) and f.column not in fieldnames
+    }
     if missing:
         names = ", ".join(sorted(missing))
         raise CsvFilterError(f"カラムが存在しません: {names}")
@@ -156,7 +166,9 @@ def _ensure_columns_exist(fieldnames: list[str], filters: list[FilterBinding]) -
 def _row_matches_with_header(row: dict[str, str], filters: list[FilterBinding]) -> bool:
     for binding in filters:
         if isinstance(binding.column, int):
-            raise CsvFilterError("ヘッダーありの場合、列番号ではなくカラム名で指定してください")
+            raise CsvFilterError(
+                "ヘッダーありの場合、列番号ではなくカラム名で指定してください"
+            )
 
         value = row.get(binding.column)
         if value is None:
