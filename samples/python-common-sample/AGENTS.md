@@ -161,3 +161,39 @@ def example_func(x: int) -> int:
 
 ---
 
+## 9. README の運用ルール（追加）
+
+このプロジェクトでは README を以下の方針で管理する。
+
+### 9.1 README の記述言語  
+- **README は日本語で記述する。**  
+  - 共通機能の仕様・使い方は日本語で統一し、理解しやすさとメンテナンス性を重視する。
+
+### 9.2 README 分割方針  
+共通機能が増えていくと単一 README が肥大化するため、以下の方針で分割して管理する。
+
+- プロジェクトルートの `README.md` は **全体概要のみに限定する**  
+  - プロジェクト目的
+  - ディレクトリ構成
+  - 共通機能の種類（簡単な一覧）
+
+- 各機能の詳細な説明は **specs/ 配下の spec ファイル**に記述する  
+  - logging → `specs/logging.md`
+  - config → `specs/config.md`
+  - errors → `specs/errors.md`
+  - paths → `specs/paths.md`  
+  など
+
+- 必要であれば、`docs/` ディレクトリを設けて追加ドキュメントを配置してよい  
+  - 例：利用ガイド、事例、FAQ、設計メモなど  
+  - ただし公式仕様は必ず specs/ に置くこと
+
+### 9.3 README に書かないもの  
+README は肥大化を防ぐため、次の内容は **README に直接書かない**：
+
+- API の詳細仕様（specs に書く）
+- 実装方針のメモ（developer note は docs/ に）
+- コーディング規約（AGENTS.md に集約）
+- 作業プロセス（PLANS.md に記載済み）
+
+---
