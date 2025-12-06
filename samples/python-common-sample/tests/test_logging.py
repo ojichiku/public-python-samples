@@ -1,44 +1,51 @@
 """Tests for the shared logging configuration.
 
-This suite ensures the default config/logging.yaml file matches the
+This suite ensures the default config/logging.ini file matches the
 spec defined in specs/logging.md.
 """
 
 from __future__ import annotations
 
+import configparser
 from pathlib import Path
 
-import yaml
+
+CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "logging.ini"
 
 
-CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "logging.yaml"
-
-
-def load_logging_config() -> dict:
-    """YAML を読み込んで辞書として返す。"""
-    with CONFIG_PATH.open("r", encoding="utf-8") as config_file:
-        return yaml.safe_load(config_file)
+def load_logging_config() -> configparser.ConfigParser:
+    """INI を読み込んで ConfigParser として返す。"""
+    parser = configparser.ConfigParser(interpolation=None)
+    parser.read(CONFIG_PATH, encoding="utf-8")
+    return parser
 
 
 def test_logging_config_file_exists():
-    """config/logging.yaml が存在することを確認する。"""
-    assert CONFIG_PATH.exists(), "config/logging.yaml must exist per spec"
+    """config/logging.ini が存在することを確認する。"""
+    assert CONFIG_PATH.exists(), "config/logging.ini must exist per spec"
 
 
 def test_logging_config_matches_spec_defaults():
     """specs/logging.md に記載されたデフォルト値を検証する。"""
     config = load_logging_config()
 
-    assert config["level"] == "INFO"
-    assert config["stdout"] == {"enabled": True}
+    assert config.get("loggers", "keys") == "root"
+    assert config.get("handlers", "keys") == "consoleHandler,fileHandler"
+    assert config.get("formatters", "keys") == "defaultFormatter"
 
-    expected_file_section = {
-        "enabled": True,
-        "path": "logs/app.log",
-        "rotation": None,
-        "max_files": 5,
-    }
-    assert config["file"] == expected_file_section
+    assert config.get("logger_root", "level") == "INFO"
+    assert config.get("logger_root", "handlers") == "consoleHandler,fileHandler"
 
-    assert config["format"] == "%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s"
-    assert config["date_format"] == "%Y/%m/%d %H:%M:%S"
+    assert config.get("handler_consoleHandler", "class") == "StreamHandler"
+    assert config.get("handler_consoleHandler", "formatter") == "defaultFormatter"
+    assert config.get("handler_consoleHandler", "args") == "(sys.stdout,)"
+
+    assert config.get("handler_fileHandler", "class") == "FileHandler"
+    assert config.get("handler_fileHandler", "formatter") == "defaultFormatter"
+    assert config.get("handler_fileHandler", "args") == "('logs/app.log', 'a')"
+
+    assert (
+        config.get("formatter_defaultFormatter", "format")
+        == "%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s"
+    )
+    assert config.get("formatter_defaultFormatter", "datefmt") == "%Y/%m/%d %H:%M:%S"

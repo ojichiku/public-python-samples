@@ -158,9 +158,6 @@ wheels = [
 name = "python-common-sample"
 version = "0.1.0"
 source = { virtual = "samples/python-common-sample" }
-dependencies = [
-    { name = "pyyaml" },
-]
 
 [package.dev-dependencies]
 test = [
@@ -168,7 +165,6 @@ test = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pyyaml", specifier = ">=6.0.2" }]
 
 [package.metadata.requires-dev]
 test = [{ name = "pytest", specifier = ">=9.0.1" }]
