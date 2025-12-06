@@ -21,3 +21,8 @@ testpaths = [
   "samples/file-renamer-cli/tests",
   "samples/logfilter-cli/tests",
 ]
+
+[tool.uv.workspace]
+members = [
+    "samples/python-common-sample",
+]
