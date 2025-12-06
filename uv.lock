@@ -2,6 +2,12 @@ version = 1
 revision = 3
 requires-python = ">=3.14"
 
+[manifest]
+members = [
+    "public-python-samples",
+    "python-common-sample",
+]
+
 [[package]]
 name = "cfgv"
 version = "3.5.0"
@@ -147,6 +153,25 @@ sdist = { url = "https://files.pythonhosted.org/packages/07/56/f013048ac4bc4c1d9
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/8b/6300fb80f858cda1c51ffa17075df5d846757081d11ab4aa35cef9e6258b/pytest-9.0.1-py3-none-any.whl", hash = "sha256:67be0030d194df2dfa7b556f2e56fb3c3315bd5c8822c6951162b92b32ce7dad", size = 373668, upload-time = "2025-11-12T13:05:07.379Z" },
 ]
+
+[[package]]
+name = "python-common-sample"
+version = "0.1.0"
+source = { virtual = "samples/python-common-sample" }
+dependencies = [
+    { name = "pyyaml" },
+]
+
+[package.dev-dependencies]
+test = [
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pyyaml", specifier = ">=6.0.2" }]
+
+[package.metadata.requires-dev]
+test = [{ name = "pytest", specifier = ">=9.0.1" }]
 
 [[package]]
 name = "pyyaml"
