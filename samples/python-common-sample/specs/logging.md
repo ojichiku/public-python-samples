@@ -57,8 +57,8 @@ Python logging の書式で表現すると、デフォルト値は次のよう�
 
 ## 3. ログ設定ファイルの仕様
 
-logging の設定は、外部設定ファイル（YAML / JSON / TOML のいずれか）で指定する。  
-ここでは **YAML 形式**を標準例として示す。
+logging の設定は、外部設定ファイル（INI）で指定する。  
+ここでは **INI 形式**のみを標準とする。
 
 ### 3.1 設定項目（論理構造）
 
@@ -80,31 +80,45 @@ logging の設定は、外部設定ファイル（YAML / JSON / TOML のいず�
 
 ---
 
-### 3.2 標準の設定ファイル（YAML ひな形）
+### 3.2 標準の設定ファイル（INI ひな形）
 
 標準の logging 設定ファイルは、以下のパスと内容とする。
 
-- パス：`config/logging.yaml`
+- パス：`config/logging.ini`
 - 役割：  
   - 共通のデフォルト設定  
   - 新しいアプリケーションでコピーして使えるサンプル
 
-```yaml
-# config/logging.yaml
+```ini
+; config/logging.ini
+[loggers]
+keys=root
 
-level: INFO
+[handlers]
+keys=consoleHandler,fileHandler
 
-stdout:
-  enabled: true
+[formatters]
+keys=defaultFormatter
 
-file:
-  enabled: true
-  path: logs/app.log
-  rotation: null
-  max_files: 5
+[logger_root]
+level=INFO
+handlers=consoleHandler,fileHandler
 
-format: "%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s"
-date_format: "%Y/%m/%d %H:%M:%S"
+[handler_consoleHandler]
+class=StreamHandler
+level=INFO
+formatter=defaultFormatter
+args=(sys.stdout,)
+
+[handler_fileHandler]
+class=FileHandler
+level=INFO
+formatter=defaultFormatter
+args=('logs/app.log', 'a')
+
+[formatter_defaultFormatter]
+format=%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s
+datefmt=%Y/%m/%d %H:%M:%S
 ```
 
 ---
@@ -115,8 +129,8 @@ date_format: "%Y/%m/%d %H:%M:%S"
 
 ### 4.1 ログ設定ファイル
 
-* ファイルパス：`config/logging.yaml`
-* 内容：3.2 に示した YAML をベースとする。
+* ファイルパス：`config/logging.ini`
+* 内容：3.2 に示した INI をベースとする。
 * 各アプリケーションは、このファイルをベースにコピー・調整して使用する。
 
 ---
@@ -136,7 +150,7 @@ date_format: "%Y/%m/%d %H:%M:%S"
 実装（コード）に対しては、以下の方針のみを前提とする：
 
 * `logging.basicConfig()` 等をコード内に直接ベタ書きするのではなく、
-  **必ず外部設定ファイル（`config/logging.yaml` など）を読み込んで設定を行う**。
+  **必ず外部設定ファイル（`config/logging.ini` など）を読み込んで設定を行う**。
 * ログフォーマット・レベル・出力先のデフォルト値は、この設定ファイルの内容を基準とする。
 
 > 具体的な関数名・クラス名・API 仕様は、この spec では定義しない。

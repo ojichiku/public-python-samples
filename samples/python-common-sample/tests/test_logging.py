@@ -15,15 +15,18 @@ CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "logging.yaml"
 
 
 def load_logging_config() -> dict:
+    """YAML を読み込んで辞書として返す。"""
     with CONFIG_PATH.open("r", encoding="utf-8") as config_file:
         return yaml.safe_load(config_file)
 
 
 def test_logging_config_file_exists():
+    """config/logging.yaml が存在することを確認する。"""
     assert CONFIG_PATH.exists(), "config/logging.yaml must exist per spec"
 
 
 def test_logging_config_matches_spec_defaults():
+    """specs/logging.md に記載されたデフォルト値を検証する。"""
     config = load_logging_config()
 
     assert config["level"] == "INFO"
