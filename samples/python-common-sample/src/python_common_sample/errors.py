@@ -21,6 +21,16 @@ class OcSampleError(Exception):
         user_message: str | None = None,
         fatal: bool = True,
     ) -> None:
+        """エラーのメタデータを保持しやすいよう属性を初期化する。
+
+        Args:
+            message: 例外のメインメッセージ。
+            *details: 任意の追加情報（Exception 継承元に渡す）。
+            code: エラーを識別するコード。
+            user_message: ユーザ向けのメッセージ。
+            fatal: 致命的かどうかのフラグ。
+        """
+
         super().__init__(message, *details)
         self.message = message
         self.code = code
@@ -28,7 +38,11 @@ class OcSampleError(Exception):
         self.fatal = fatal
 
     def to_dict(self) -> dict[str, Any]:
-        """ログや通知向けに属性を辞書化する。"""
+        """ログや通知向けに属性を辞書化する。
+
+        Returns:
+            message/code/user_message/fatal を含む辞書。
+        """
 
         payload: dict[str, Any] = {
             "message": self.message,
@@ -50,6 +64,16 @@ class OcSampleUserError(OcSampleError):
         user_message: str | None = None,
         fatal: bool = False,
     ) -> None:
+        """ユーザ向けエラーの属性を初期化する。
+
+        Args:
+            message: 例外のメインメッセージ。
+            *details: 任意の追加情報。
+            code: エラーコード。
+            user_message: ユーザ向けメッセージ。
+            fatal: 原則 False（必要なら True にもできる）。
+        """
+
         super().__init__(
             message,
             *details,

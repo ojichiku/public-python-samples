@@ -22,7 +22,18 @@ _Parser = Callable[[Path], ConfigDict]
 
 
 def load_config(path: str | Path) -> ConfigDict:
-    """設定ファイルを読み込み dict として返す。"""
+    """設定ファイルを読み込み dict として返す。
+
+    Args:
+        path: 読み込む設定ファイルのパス。
+
+    Returns:
+        設定内容の辞書。
+
+    Raises:
+        OcSampleUserError: ファイルが存在しない、読み込めない、拡張子が不正など。
+        OcSampleError: 予期しない例外が発生した場合。
+    """
 
     file_path = Path(path)
     if not file_path.exists():
@@ -66,7 +77,18 @@ def load_config(path: str | Path) -> ConfigDict:
 
 
 def load_config_as(path: str | Path, model: type[BaseModel]) -> BaseModel:
-    """設定ファイルを読み込み、指定された pydantic モデルで検証して返す。"""
+    """設定ファイルを読み込み、指定された pydantic モデルで検証して返す。
+
+    Args:
+        path: 読み込む設定ファイルのパス。
+        model: バリデーション先の pydantic モデルクラス。
+
+    Returns:
+        検証済みのモデルインスタンス。
+
+    Raises:
+        OcSampleUserError: 設定内容がモデルのスキーマと一致しない場合。
+    """
 
     data = load_config(path)
     try:
@@ -79,7 +101,18 @@ def load_config_as(path: str | Path, model: type[BaseModel]) -> BaseModel:
 
 
 def _ensure_mapping(data: Any, path: Path) -> ConfigDict:
-    """トップレベルが dict であることを保証する。"""
+    """トップレベルが dict であることを保証する。
+
+    Args:
+        data: ファイルから読み取ったオブジェクト。
+        path: 読み込み対象ファイルのパス。
+
+    Returns:
+        dict 型に正規化したデータ。
+
+    Raises:
+        OcSampleUserError: トップレベルが dict でない場合。
+    """
 
     if not isinstance(data, dict):
         raise OcSampleUserError(
@@ -90,7 +123,17 @@ def _ensure_mapping(data: Any, path: Path) -> ConfigDict:
 
 
 def _load_yaml(path: Path) -> ConfigDict:
-    """YAML ファイルを読み込む。"""
+    """YAML ファイルを読み込む。
+
+    Args:
+        path: YAML ファイルのパス。
+
+    Returns:
+        読み込んだ内容の dict。
+
+    Raises:
+        OcSampleUserError: YAML の構文が不正な場合。
+    """
 
     try:
         with path.open("r", encoding="utf-8") as fh:
@@ -104,7 +147,17 @@ def _load_yaml(path: Path) -> ConfigDict:
 
 
 def _load_json(path: Path) -> ConfigDict:
-    """JSON ファイルを読み込む。"""
+    """JSON ファイルを読み込む。
+
+    Args:
+        path: JSON ファイルのパス。
+
+    Returns:
+        読み込んだ内容の dict。
+
+    Raises:
+        OcSampleUserError: JSON の構文が不正な場合。
+    """
 
     try:
         with path.open("r", encoding="utf-8") as fh:
@@ -118,7 +171,17 @@ def _load_json(path: Path) -> ConfigDict:
 
 
 def _load_toml(path: Path) -> ConfigDict:
-    """TOML ファイルを読み込む。"""
+    """TOML ファイルを読み込む。
+
+    Args:
+        path: TOML ファイルのパス。
+
+    Returns:
+        読み込んだ内容の dict。
+
+    Raises:
+        OcSampleUserError: TOML の構文が不正な場合。
+    """
 
     try:
         with path.open("rb") as fh:
