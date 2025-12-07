@@ -22,6 +22,7 @@ from .paths import (
     temporary_directory,
     to_path,
 )
+from .yaml_store import save_yaml
 
 __all__ = [
     "CodeItem",
@@ -47,6 +48,7 @@ __all__ = [
     "resolve_path",
     "reload_codes",
     "safe_filename",
+    "save_yaml",
     "temporary_directory",
     "to_path",
 ]

@@ -31,6 +31,10 @@ python-common-sample
   - 仕様: `specs/paths.md`。  
   - 実装: `src/python_common_sample/paths.py` が Path 変換、アプリ基点取得、一時ファイル/ディレクトリ、glob、ファイル名ユーティリティを提供します。  
   - テスト: `tests/test_paths.py` で各ユーティリティの基本挙動や EXE/スクリプト判定、一時リソースのクリーンアップを確認しています。
+- **YAML Store（YAML 保存）**  
+  - 仕様: `specs/yaml_store.md`。  
+  - 実装: `src/python_common_sample/yaml_store.py` の `save_yaml()` が dict/Mappng を YAML に書き出し、必要なら親ディレクトリを作成します。  
+  - テスト: `tests/test_yaml_store.py` で保存結果の読み込み、親ディレクトリ作成、権限エラーや YAML 変換失敗時の例外を検証しています。
 - **今後追加される機能**  
   - 例: エラー共通処理、通知、ジョブ管理等。追加時は spec → 設定ファイル → テスト → README の順で反映します。
 
@@ -102,7 +106,8 @@ samples/python-common-sample/
 │   ├── logging.md           # logging 仕様
 │   ├── errors.md            # エラー共通機能仕様
 │   ├── messages.md          # メッセージ取得仕様
-│   └── paths.md             # パス操作ユーティリティ仕様
+│   ├── paths.md             # パス操作ユーティリティ仕様
+│   └── yaml_store.md        # YAML 保存ユーティリティ仕様
 ├── src/
 │   └── python_common_sample/
 │       ├── __init__.py      # 公開インターフェイス
@@ -110,14 +115,16 @@ samples/python-common-sample/
 │       ├── config.py        # 設定ファイル読み込み実装
 │       ├── errors.py        # エラークラス実装
 │       ├── messages.py      # メッセージ取得実装
-│       └── paths.py         # パス操作ユーティリティ実装
+│       ├── paths.py         # パス操作ユーティリティ実装
+│       └── yaml_store.py    # YAML 保存ユーティリティ実装
 ├── tests/
 │   ├── test_codes.py        # コード管理の検証
 │   ├── test_config.py       # 設定読み込みの検証
 │   ├── test_errors.py       # エラークラスの検証
 │   ├── test_logging.py      # logging 設定の検証
 │   ├── test_messages.py     # メッセージ取得の検証
-│   └── test_paths.py        # パス操作ユーティリティの検証
+│   ├── test_paths.py        # パス操作ユーティリティの検証
+│   └── test_yaml_store.py   # YAML 保存ユーティリティの検証
 ├── README.md                # 本ドキュメント
 └── pyproject.toml           # 依存管理
 ```
