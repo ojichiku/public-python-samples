@@ -9,6 +9,10 @@ python-common-sample
   - 仕様: `specs/logging.md` に詳細を記載。  
   - 設定ファイル: `config/logging.ini`。`logging.config.fileConfig()` で読み込み、標準出力とファイルの 2 系統に INFO レベルで出力。  
   - テスト: `tests/test_logging.py` で設定ファイルの整合性を検証。新たな項目を追加した場合はテストも更新してください。
+- **Errors（共通エラーマネージャ）**  
+  - 仕様: `specs/errors.md` を参照。  
+  - 実装: `src/python_common_sample/errors.py` で `OcSampleError` / `OcSampleUserError` を提供。  
+  - テスト: `tests/test_errors.py` で基本的な属性と `to_dict()` の挙動を担保しています。共通機能が新たなメタデータを扱う場合はテストを拡張してください。
 - **今後追加される機能**  
   - 例: エラー共通処理、通知、ジョブ管理等。追加時は spec → 設定ファイル → テスト → README の順で反映します。
 
@@ -37,6 +41,17 @@ python-common-sample
    uv run pytest samples/python-common-sample/tests
    ```
    新しい共通機能を追加した際は、設定ファイルと spec に合わせてテストを追加することを推奨します。
+4. **エラークラスの利用**  
+   ```python
+   from python_common_sample import OcSampleError, OcSampleUserError
+
+   raise OcSampleUserError(
+       "invalid range",
+       code="RANGE_ERROR",
+       user_message="1〜10 の範囲で入力してください。",
+   )
+   ```
+   `OcSampleError` は致命的な共通エラーのベース、`OcSampleUserError` はユーザ修正可能なエラーを表します。呼び出し側は `fatal` フラグや `user_message` を用いて適切に通知してください。
 
 ## 構成ファイル一覧
 
@@ -46,8 +61,13 @@ samples/python-common-sample/
 │   └── logging.ini          # logging 設定ファイル
 ├── specs/
 │   ├── logging.md           # logging 仕様
-│   └── errors.md            # 今後の共通機能仕様テンプレート
+│   └── errors.md            # エラー共通機能仕様
+├── src/
+│   └── python_common_sample/
+│       ├── __init__.py      # 公開インターフェイス
+│       └── errors.py        # エラークラス実装
 ├── tests/
+│   ├── test_errors.py       # エラークラスの検証
 │   └── test_logging.py      # logging 設定の検証
 ├── README.md                # 本ドキュメント
 └── pyproject.toml           # 依存管理

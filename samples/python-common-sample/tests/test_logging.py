@@ -44,11 +44,13 @@ def configure_logging_with_temp_file(tmp_path: Path) -> Path:
 
 def test_logging_config_file_exists():
     """config/logging.ini が存在することを確認する。"""
+    # 単純に設定ファイルの有無を保証し、他テストの前提を担保
     assert CONFIG_PATH.exists(), "config/logging.ini must exist per spec"
 
 
 def test_logging_config_writes_expected_console_and_file_output(tmp_path, capsys):
     """logging.ini を実際に読み込み、stdout とファイルへ仕様どおり出力されるか確認する。"""
+    # コンソールとファイルの双方でフォーマットとログレベルが仕様通りかを網羅的に検証
     log_file = configure_logging_with_temp_file(tmp_path)
     info_message = "Runtime logging validation"
 
