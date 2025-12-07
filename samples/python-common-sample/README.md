@@ -9,6 +9,10 @@ python-common-sample
   - 仕様: `specs/logging.md` に詳細を記載。  
   - 設定ファイル: `config/logging.ini`。`logging.config.fileConfig()` で読み込み、標準出力とファイルの 2 系統に INFO レベルで出力。  
   - テスト: `tests/test_logging.py` で設定ファイルの整合性を検証。新たな項目を追加した場合はテストも更新してください。
+- **Config（設定ファイル読み込み）**  
+  - 仕様: `specs/config.md` を参照。  
+  - 実装: `src/python_common_sample/config.py` が YAML/JSON/TOML を吸収して `dict` を返します。  
+  - テスト: `tests/test_config.py` で対応拡張子やエラー時の挙動、pydantic 連携をカバーしています。
 - **Errors（共通エラーマネージャ）**  
   - 仕様: `specs/errors.md` を参照。  
   - 実装: `src/python_common_sample/errors.py` で `OcSampleError` / `OcSampleUserError` を提供。  
@@ -52,6 +56,23 @@ python-common-sample
    )
    ```
    `OcSampleError` は致命的な共通エラーのベース、`OcSampleUserError` はユーザ修正可能なエラーを表します。呼び出し側は `fatal` フラグや `user_message` を用いて適切に通知してください。
+5. **設定ファイル読み込み**  
+   ```python
+   from python_common_sample import load_config, load_config_as, OcSampleUserError
+   from pydantic import BaseModel
+
+   config_dict = load_config("config/app.yaml")
+
+   class AppConfig(BaseModel):
+       name: str
+       retries: int
+
+   try:
+       app_config = load_config_as("config/app.yaml", AppConfig)
+   except OcSampleUserError as exc:
+       print(exc.user_message or exc)
+   ```
+   YAML/JSON/TOML の拡張子を自動判別し、必要に応じて `load_config_as()` で構造チェックも実施できます。
 
 ## 構成ファイル一覧
 
@@ -60,13 +81,16 @@ samples/python-common-sample/
 ├── config/
 │   └── logging.ini          # logging 設定ファイル
 ├── specs/
+│   ├── config.md            # 設定ファイル読み込み仕様
 │   ├── logging.md           # logging 仕様
 │   └── errors.md            # エラー共通機能仕様
 ├── src/
 │   └── python_common_sample/
 │       ├── __init__.py      # 公開インターフェイス
+│       ├── config.py        # 設定ファイル読み込み実装
 │       └── errors.py        # エラークラス実装
 ├── tests/
+│   ├── test_config.py       # 設定読み込みの検証
 │   ├── test_errors.py       # エラークラスの検証
 │   └── test_logging.py      # logging 設定の検証
 ├── README.md                # 本ドキュメント
