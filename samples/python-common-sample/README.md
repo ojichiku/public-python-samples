@@ -27,6 +27,10 @@ python-common-sample
   - 設定: `config/codes.csv` にコードグループや sort_order を CSV で定義。  
   - 実装: `src/python_common_sample/codes.py` が CSV を読み込み `get_codes()` / `get_value()` / `reload_codes()` を提供、メモリキャッシュで高速に参照します。  
   - テスト: `tests/test_codes.py` でソート順、有効フラグ、default の挙動、キャッシュとリロードを検証しています。
+- **Paths（パス操作）**  
+  - 仕様: `specs/paths.md`。  
+  - 実装: `src/python_common_sample/paths.py` が Path 変換、アプリ基点取得、一時ファイル/ディレクトリ、glob、ファイル名ユーティリティを提供します。  
+  - テスト: `tests/test_paths.py` で各ユーティリティの基本挙動や EXE/スクリプト判定、一時リソースのクリーンアップを確認しています。
 - **今後追加される機能**  
   - 例: エラー共通処理、通知、ジョブ管理等。追加時は spec → 設定ファイル → テスト → README の順で反映します。
 
@@ -97,20 +101,23 @@ samples/python-common-sample/
 │   ├── config.md            # 設定ファイル読み込み仕様
 │   ├── logging.md           # logging 仕様
 │   ├── errors.md            # エラー共通機能仕様
-│   └── messages.md          # メッセージ取得仕様
+│   ├── messages.md          # メッセージ取得仕様
+│   └── paths.md             # パス操作ユーティリティ仕様
 ├── src/
 │   └── python_common_sample/
 │       ├── __init__.py      # 公開インターフェイス
 │       ├── codes.py         # コード管理実装
 │       ├── config.py        # 設定ファイル読み込み実装
 │       ├── errors.py        # エラークラス実装
-│       └── messages.py      # メッセージ取得実装
+│       ├── messages.py      # メッセージ取得実装
+│       └── paths.py         # パス操作ユーティリティ実装
 ├── tests/
 │   ├── test_codes.py        # コード管理の検証
 │   ├── test_config.py       # 設定読み込みの検証
 │   ├── test_errors.py       # エラークラスの検証
 │   ├── test_logging.py      # logging 設定の検証
-│   └── test_messages.py     # メッセージ取得の検証
+│   ├── test_messages.py     # メッセージ取得の検証
+│   └── test_paths.py        # パス操作ユーティリティの検証
 ├── README.md                # 本ドキュメント
 └── pyproject.toml           # 依存管理
 ```
