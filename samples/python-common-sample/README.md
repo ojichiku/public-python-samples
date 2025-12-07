@@ -17,6 +17,11 @@ python-common-sample
   - 仕様: `specs/errors.md` を参照。  
   - 実装: `src/python_common_sample/errors.py` で `OcSampleError` / `OcSampleUserError` を提供。  
   - テスト: `tests/test_errors.py` で基本的な属性と `to_dict()` の挙動を担保しています。共通機能が新たなメタデータを扱う場合はテストを拡張してください。
+- **Messages（メッセージ取得）**  
+  - 仕様: `specs/messages.md`。  
+  - 設定: `config/messages_ja.ini` に ID と本文を INI 形式で定義。  
+  - 実装: `src/python_common_sample/messages.py` の `get_message()` がロケールごとのファイルを読み込み、`{0}` 形式のプレースホルダーを引数で置換します。  
+  - テスト: `tests/test_messages.py` で引数不足・余剰、未知 ID、プレースホルダーの挙動を確認しています。
 - **今後追加される機能**  
   - 例: エラー共通処理、通知、ジョブ管理等。追加時は spec → 設定ファイル → テスト → README の順で反映します。
 
@@ -79,20 +84,24 @@ python-common-sample
 ```
 samples/python-common-sample/
 ├── config/
-│   └── logging.ini          # logging 設定ファイル
+│   ├── logging.ini          # logging 設定ファイル
+│   └── messages_ja.ini      # メッセージ定義（日本語）
 ├── specs/
 │   ├── config.md            # 設定ファイル読み込み仕様
 │   ├── logging.md           # logging 仕様
-│   └── errors.md            # エラー共通機能仕様
+│   ├── errors.md            # エラー共通機能仕様
+│   └── messages.md          # メッセージ取得仕様
 ├── src/
 │   └── python_common_sample/
 │       ├── __init__.py      # 公開インターフェイス
 │       ├── config.py        # 設定ファイル読み込み実装
-│       └── errors.py        # エラークラス実装
+│       ├── errors.py        # エラークラス実装
+│       └── messages.py      # メッセージ取得実装
 ├── tests/
 │   ├── test_config.py       # 設定読み込みの検証
 │   ├── test_errors.py       # エラークラスの検証
-│   └── test_logging.py      # logging 設定の検証
+│   ├── test_logging.py      # logging 設定の検証
+│   └── test_messages.py     # メッセージ取得の検証
 ├── README.md                # 本ドキュメント
 └── pyproject.toml           # 依存管理
 ```
