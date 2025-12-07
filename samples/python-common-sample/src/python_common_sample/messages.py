@@ -7,6 +7,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from .errors import OcSampleUserError
+
 __all__ = [
     "get_message",
 ]
@@ -45,8 +47,7 @@ def _load_locale(locale: str) -> dict[str, str]:
         該当ロケールのメッセージ ID とテンプレートの dict。
 
     Raises:
-        FileNotFoundError: ロケールの INI ファイルが存在しない場合。
-        ValueError: `[messages]` セクションが見つからない場合。
+        OcSampleUserError: ファイルが存在しない、不正といったユーザ起因のエラー。
     """
 
     if locale in _CACHE:
@@ -58,10 +59,16 @@ def _load_locale(locale: str) -> dict[str, str]:
     read_files = parser.read(config_path, encoding="utf-8")
     if not read_files:
         msg = f"メッセージファイル '{config_path}' を読み込めません。"
-        raise FileNotFoundError(msg)
+        raise OcSampleUserError(
+            msg,
+            user_message=f"{config_path.name} を配置し、アクセスできることを確認してください。",
+        )
     if _SECTION not in parser:
         msg = f"メッセージファイル '{config_path}' にセクション '{_SECTION}' がありません。"
-        raise ValueError(msg)
+        raise OcSampleUserError(
+            msg,
+            user_message="[messages] セクションを追加してください。",
+        )
 
     messages = dict(parser[_SECTION])
     _CACHE[locale] = messages

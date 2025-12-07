@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 import python_common_sample.codes as codes_module
 
 # API インポート。内部キャッシュ書き換えのためモジュール自体も参照。
-from python_common_sample import get_codes, get_value, reload_codes
+from python_common_sample import OcSampleUserError, get_codes, get_value, reload_codes
 from python_common_sample.codes import CodeItem, FileCodeSource
 
 
@@ -90,3 +92,16 @@ def test_cache_prevents_duplicate_reads() -> None:
     get_codes("TMP")
     get_value("TMP", "1")
     assert dummy.calls == 1
+
+
+def test_reload_codes_missing_file_raises_user_error(tmp_path: Path) -> None:
+    """存在しない CSV を読み込もうとした際にユーザーエラーとなるか。"""
+
+    original_source = codes_module._source
+    try:
+        codes_module._source = FileCodeSource(tmp_path / "missing.csv")
+        with pytest.raises(OcSampleUserError):
+            reload_codes()
+    finally:
+        codes_module._source = original_source
+        reload_codes()

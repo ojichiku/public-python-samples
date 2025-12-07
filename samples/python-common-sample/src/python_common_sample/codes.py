@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol, Sequence
 
+from .errors import OcSampleUserError
+
 __all__ = [
     "CodeItem",
     "FileCodeSource",
@@ -56,20 +58,32 @@ class FileCodeSource:
             CSV から読み出した CodeItem のリスト。
 
         Raises:
-            FileNotFoundError: CSV ファイルが存在しない場合。
-            ValueError: 必須カラムが不足している、または値が不正な場合。
+            OcSampleUserError: CSV が存在しない、読めない、不正な場合。
         """
 
         if not self.path.exists():
             msg = f"コードファイル '{self.path}' が見つかりません。"
-            raise FileNotFoundError(msg)
+            raise OcSampleUserError(
+                msg,
+                user_message="codes.csv のパスと配置を確認してください。",
+            )
 
-        with self.path.open("r", encoding="utf-8", newline="") as fh:
-            reader = csv.DictReader(fh)
-            if reader.fieldnames is None:
-                raise ValueError("コードファイルにヘッダ行がありません。")
-            self._validate_columns(reader.fieldnames)
-            items = [self._to_item(row, reader.fieldnames) for row in reader]
+        try:
+            with self.path.open("r", encoding="utf-8", newline="") as fh:
+                reader = csv.DictReader(fh)
+                if reader.fieldnames is None:
+                    raise OcSampleUserError(
+                        "コードファイルにヘッダ行がありません。",
+                        user_message="codes.csv の 1 行目にヘッダを記述してください。",
+                    )
+                self._validate_columns(reader.fieldnames)
+                items = [self._to_item(row, reader.fieldnames) for row in reader]
+        except OSError as exc:
+            msg = f"コードファイル '{self.path}' を読み込めません: {exc}"
+            raise OcSampleUserError(
+                msg,
+                user_message="codes.csv を読み取れる状態か確認してください。",
+            ) from exc
         return items
 
     @staticmethod
@@ -81,7 +95,10 @@ class FileCodeSource:
         if missing:
             missing_list = ", ".join(sorted(missing))
             msg = f"コードファイルに必須カラムが不足しています: {missing_list}"
-            raise ValueError(msg)
+            raise OcSampleUserError(
+                msg,
+                user_message="code_group/code/value/sort_order の各列を定義してください。",
+            )
 
     @staticmethod
     def _to_item(row: dict[str, str | None], fieldnames: Sequence[str]) -> CodeItem:
@@ -91,7 +108,10 @@ class FileCodeSource:
             sort_order = int(row["sort_order"] or 0)
         except (TypeError, ValueError) as exc:
             msg = f"sort_order の値が不正です: {row.get('sort_order')!r}"
-            raise ValueError(msg) from exc
+            raise OcSampleUserError(
+                msg,
+                user_message="sort_order には整数を指定してください。",
+            ) from exc
 
         enabled_value = row.get("enabled") if "enabled" in fieldnames else None
         enabled = _parse_enabled(enabled_value)
@@ -103,7 +123,10 @@ class FileCodeSource:
         display_value = row.get("value") or ""
         if not code_group or not code_value or display_value == "":
             msg = f"必須項目が不足しています: {row!r}"
-            raise ValueError(msg)
+            raise OcSampleUserError(
+                msg,
+                user_message="code_group/code/value の各列に値を入力してください。",
+            )
 
         return CodeItem(
             code_group=code_group,

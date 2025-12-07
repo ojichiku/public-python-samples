@@ -1,4 +1,7 @@
-from python_common_sample import get_message
+import pytest
+
+import python_common_sample.messages as messages_module
+from python_common_sample import OcSampleUserError, get_message
 
 
 def test_get_message_without_placeholders() -> None:
@@ -32,3 +35,10 @@ def test_invalid_placeholder_is_left_as_is() -> None:
 
 def test_unknown_message_id_returns_fallback() -> None:
     assert get_message("MSG_DOES_NOT_EXIST") == "[MSG_DOES_NOT_EXIST]"
+
+
+def test_missing_locale_file_raises_user_error(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(messages_module, "_MESSAGES_DIR", tmp_path)
+    monkeypatch.setattr(messages_module, "_CACHE", {}, raising=False)
+    with pytest.raises(OcSampleUserError):
+        messages_module.get_message("MSG_UNKNOWN_ERROR", locale="tmp")
