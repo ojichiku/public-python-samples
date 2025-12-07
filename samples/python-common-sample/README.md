@@ -22,6 +22,11 @@ python-common-sample
   - 設定: `config/messages_ja.ini` に ID と本文を INI 形式で定義。  
   - 実装: `src/python_common_sample/messages.py` の `get_message()` がロケールごとのファイルを読み込み、`{0}` 形式のプレースホルダーを引数で置換します。  
   - テスト: `tests/test_messages.py` で引数不足・余剰、未知 ID、プレースホルダーの挙動を確認しています。
+- **Codes（コード管理）**  
+  - 仕様: `specs/codes.md`。  
+  - 設定: `config/codes.csv` にコードグループや sort_order を CSV で定義。  
+  - 実装: `src/python_common_sample/codes.py` が CSV を読み込み `get_codes()` / `get_value()` / `reload_codes()` を提供、メモリキャッシュで高速に参照します。  
+  - テスト: `tests/test_codes.py` でソート順、有効フラグ、default の挙動、キャッシュとリロードを検証しています。
 - **今後追加される機能**  
   - 例: エラー共通処理、通知、ジョブ管理等。追加時は spec → 設定ファイル → テスト → README の順で反映します。
 
@@ -84,9 +89,11 @@ python-common-sample
 ```
 samples/python-common-sample/
 ├── config/
+│   ├── codes.csv            # コード定義 CSV
 │   ├── logging.ini          # logging 設定ファイル
 │   └── messages_ja.ini      # メッセージ定義（日本語）
 ├── specs/
+│   ├── codes.md             # コード管理仕様
 │   ├── config.md            # 設定ファイル読み込み仕様
 │   ├── logging.md           # logging 仕様
 │   ├── errors.md            # エラー共通機能仕様
@@ -94,10 +101,12 @@ samples/python-common-sample/
 ├── src/
 │   └── python_common_sample/
 │       ├── __init__.py      # 公開インターフェイス
+│       ├── codes.py         # コード管理実装
 │       ├── config.py        # 設定ファイル読み込み実装
 │       ├── errors.py        # エラークラス実装
 │       └── messages.py      # メッセージ取得実装
 ├── tests/
+│   ├── test_codes.py        # コード管理の検証
 │   ├── test_config.py       # 設定読み込みの検証
 │   ├── test_errors.py       # エラークラスの検証
 │   ├── test_logging.py      # logging 設定の検証
