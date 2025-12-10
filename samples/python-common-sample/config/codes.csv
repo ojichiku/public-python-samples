@@ -1,0 +1,6 @@
+code_group,code,value,sort_order,enabled,extra
+GENDER,1,男性,1,true,
+GENDER,2,女性,2,true,
+GENDER,9,その他,9,false,{"note":"画面では通常非表示"}
+STATUS,1,有効,1,true,
+STATUS,0,無効,2,true,

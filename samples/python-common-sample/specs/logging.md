@@ -1,0 +1,173 @@
+
+# 共通機能：Logging 設定ファイル仕様書
+
+## 1. 目的
+
+本仕様は、Python アプリケーションで統一的に利用できる **ログ設定ファイル** の形式と内容を定義する。
+
+- ログの出力先（標準出力・ファイル）
+- ログフォーマット
+- ログレベル
+
+などの共通ルールを、**外部設定ファイルで管理すること**を目的とする。
+
+> ※ この spec は「logging の設定ファイル」を作るための仕様を扱う。  
+> ログの初期化コードやテストコードの書き方は、README やテストコード側で説明・実装する。
+
+---
+
+## 2. 基本要件
+
+### 2.1 出力先
+
+ログは以下の2つに出力できるものとする：
+
+1. **標準出力（stdout）**
+2. **ログファイル**
+
+各出力先を有効／無効にできるよう、設定ファイルで切り替え可能とする。
+
+---
+
+### 2.2 ログフォーマット
+
+ログメッセージのフォーマットは以下とする：
+
+```
+
+yyyy/MM/dd HH:mm:ss.fff [LEVEL] メッセージ
+
+```
+
+Python logging の書式で表現すると、デフォルト値は次のようになる想定：
+
+- フォーマット: `%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s`
+- 日付フォーマット: `%Y/%m/%d %H:%M:%S`
+
+設定ファイルでは、これらの値を上書きできるようにする。
+
+---
+
+### 2.3 ログレベル
+
+- 既定値：`INFO`
+- 設定ファイルで `DEBUG / INFO / WARNING / ERROR / CRITICAL` などに変更可能とする。
+
+---
+
+## 3. ログ設定ファイルの仕様
+
+logging の設定は、外部設定ファイル（INI）で指定する。  
+ここでは **INI 形式**のみを標準とする。
+
+### 3.1 設定項目（論理構造）
+
+設定ファイルの論理構造は以下の項目から構成される：
+
+| 項目             | 型       | 必須 | 説明                                                       |
+| ---------------- | -------- | ---- | ---------------------------------------------------------- |
+| `level`          | str      | 任意 | ログレベル。省略時は `INFO`                                |
+| `stdout.enabled` | bool     | 任意 | 標準出力にログを出すか。省略時は `true` を想定             |
+| `file.enabled`   | bool     | 任意 | ファイルにログを出すか。省略時は `true` を想定             |
+| `file.path`      | str      | 任意 | ログファイルのパス。省略時は `logs/app.log` を想定         |
+| `file.rotation`  | str/null | 任意 | ローテーション設定（例："1MB", "1day"）。MVPでは未使用     |
+| `file.max_files` | int      | 任意 | ローテーション時の保持数。MVPでは未使用                    |
+| `format`         | str      | 任意 | ログフォーマット。省略時はデフォルトフォーマットを使用     |
+| `date_format`    | str      | 任意 | 日付フォーマット。省略時はデフォルト日付フォーマットを使用 |
+
+> 実際にどのフィールドを必須とするか／省略時のデフォルト値は、  
+> 実装側（README やコード）で明確にする。
+
+---
+
+### 3.2 標準の設定ファイル（INI ひな形）
+
+標準の logging 設定ファイルは、以下のパスと内容とする。
+
+- パス：`config/logging.ini`
+- 役割：  
+  - 共通のデフォルト設定  
+  - 新しいアプリケーションでコピーして使えるサンプル
+
+```ini
+; config/logging.ini
+[loggers]
+keys=root
+
+[handlers]
+keys=consoleHandler,fileHandler
+
+[formatters]
+keys=defaultFormatter
+
+[logger_root]
+level=INFO
+handlers=consoleHandler,fileHandler
+
+[handler_consoleHandler]
+class=StreamHandler
+level=INFO
+formatter=defaultFormatter
+args=(sys.stdout,)
+
+[handler_fileHandler]
+class=FileHandler
+level=INFO
+formatter=defaultFormatter
+args=('logs/app.log', 'a')
+
+[formatter_defaultFormatter]
+format=%(asctime)s.%(msecs)03d [%(levelname)s] %(message)s
+datefmt=%Y/%m/%d %H:%M:%S
+```
+
+---
+
+## 4. 成果物
+
+この spec に基づき、logging の共通機能として **作成すべき成果物は「設定ファイル」とそのサンプル」である。**
+
+### 4.1 ログ設定ファイル
+
+* ファイルパス：`config/logging.ini`
+* 内容：3.2 に示した INI をベースとする。
+* 各アプリケーションは、このファイルをベースにコピー・調整して使用する。
+
+---
+
+## 5. 実装・テストに関する扱い
+
+* **この spec は「設定ファイル」の仕様のみを扱う。**
+* ログ設定ファイルをどのように読み込み、`logging` モジュールに適用するか（実装方法）は、
+
+  * プロジェクトの `README`
+  * またはテストコード（例：`tests/test_logging.py`）
+
+  に記述する。
+
+### 5.1 実装側への前提・制約（メモ）
+
+実装（コード）に対しては、以下の方針のみを前提とする：
+
+* `logging.basicConfig()` 等をコード内に直接ベタ書きするのではなく、
+  **必ず外部設定ファイル（`config/logging.ini` など）を読み込んで設定を行う**。
+* ログフォーマット・レベル・出力先のデフォルト値は、この設定ファイルの内容を基準とする。
+
+> 具体的な関数名・クラス名・API 仕様は、この spec では定義しない。
+> 必要に応じて README や別 spec（または tests）で個別に記載する。
+
+---
+
+## 6. 今後の拡張（設定ファイル側）
+
+将来的に設定ファイルで制御したくなる可能性がある項目の例：
+
+* 色付きログの有効/無効（例：`color.enabled: true`）
+* JSON 形式ログの有効/無効
+* ハンドラごとの詳細設定（例：`handlers.console`, `handlers.file` など）
+* 非同期ログ（キュー利用）の有効/無効
+
+これらを追加する場合は、本ファイル（`specs/logging.md`）に項目を追記し、
+README と実装・テストを更新する。
+
+---
