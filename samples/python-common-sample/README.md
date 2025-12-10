@@ -39,6 +39,14 @@ python-common-sample
   - 仕様: `specs/io_utils.md`。  
   - 実装: `src/python_common_sample/io_utils.py` がテキスト/行単位/CSV の読み書きと追記ユーティリティを提供します。  
   - テスト: `tests/test_io_utils.py` でテキスト操作、行読み書き、CSV の上書き・追記、親ディレクトリ未作成時の挙動を確認しています。
+- **Datetime（日時ユーティリティ）**  
+  - 仕様: `specs/datetime.md`。  
+  - 実装: `src/python_common_sample/datetime.py` が日時/日付文字列、ファイル名用タイムスタンプ、パース関数、`Timer` コンテキストマネージャを提供します。  
+  - テスト: `tests/test_datetime.py` でフォーマット、パース、タイマー計測が正しく動作することを検証しています。
+- **Validation（pydantic 検証）**  
+  - 仕様: `specs/validation.md`。  
+  - 実装: `src/python_common_sample/validation.py` の `AppModel` と `validate_model()` が pydantic を用いた入力検証とエラー整形を提供します。  
+  - テスト: `tests/test_validation.py` で必須項目欠落、型不正、余分なフィールド、エラー整形の挙動をカバーしています。
 - **今後追加される機能**  
   - 例: エラー共通処理、通知、ジョブ管理等。追加時は spec → 設定ファイル → テスト → README の順で反映します。
 
@@ -112,7 +120,9 @@ samples/python-common-sample/
 │   ├── messages.md          # メッセージ取得仕様
 │   ├── paths.md             # パス操作ユーティリティ仕様
 │   ├── yaml_store.md        # YAML 保存ユーティリティ仕様
-│   └── io_utils.md          # ファイル入出力ユーティリティ仕様
+│   ├── io_utils.md          # ファイル入出力ユーティリティ仕様
+│   ├── datetime.md          # 日時ユーティリティ仕様
+│   └── validation.md        # pydantic 検証仕様
 ├── src/
 │   └── python_common_sample/
 │       ├── __init__.py      # 公開インターフェイス
@@ -122,7 +132,9 @@ samples/python-common-sample/
 │       ├── messages.py      # メッセージ取得実装
 │       ├── paths.py         # パス操作ユーティリティ実装
 │       ├── yaml_store.py    # YAML 保存ユーティリティ実装
-│       └── io_utils.py      # ファイル入出力ユーティリティ実装
+│       ├── io_utils.py      # ファイル入出力ユーティリティ実装
+│       ├── datetime.py      # 日時ユーティリティ実装
+│       └── validation.py    # pydantic 検証ユーティリティ実装
 ├── tests/
 │   ├── test_codes.py        # コード管理の検証
 │   ├── test_config.py       # 設定読み込みの検証
@@ -131,7 +143,9 @@ samples/python-common-sample/
 │   ├── test_messages.py     # メッセージ取得の検証
 │   ├── test_paths.py        # パス操作ユーティリティの検証
 │   ├── test_yaml_store.py   # YAML 保存ユーティリティの検証
-│   └── test_io_utils.py     # ファイル入出力ユーティリティの検証
+│   ├── test_io_utils.py     # ファイル入出力ユーティリティの検証
+│   ├── test_datetime.py     # 日時ユーティリティの検証
+│   └── test_validation.py   # pydantic 検証ユーティリティの検証
 ├── README.md                # 本ドキュメント
 └── pyproject.toml           # 依存管理
 ```

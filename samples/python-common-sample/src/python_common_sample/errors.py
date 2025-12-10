@@ -7,6 +7,7 @@ from typing import Any
 __all__ = [
     "OcSampleError",
     "OcSampleUserError",
+    "ValidationError",
 ]
 
 
@@ -81,3 +82,25 @@ class OcSampleUserError(OcSampleError):
             user_message=user_message,
             fatal=fatal,
         )
+
+
+class ValidationError(OcSampleUserError):
+    """入力値や設定内容の検証に失敗した際に使用する例外。"""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        detail: str | None = None,
+        code: str | None = None,
+    ) -> None:
+        """検証失敗時の情報を保持する。
+
+        Args:
+            message: ユーザー向けメッセージ。
+            detail: ログなどで参照する詳細情報。
+            code: エラーコード。
+        """
+
+        super().__init__(message, code=code, user_message=message, fatal=False)
+        self.detail = detail
