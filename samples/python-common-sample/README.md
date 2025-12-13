@@ -146,6 +146,8 @@ samples/python-common-sample/
 │   ├── test_io_utils.py     # ファイル入出力ユーティリティの検証
 │   ├── test_datetime.py     # 日時ユーティリティの検証
 │   └── test_validation.py   # pydantic 検証ユーティリティの検証
+├── AGENTS.md                # 仕様と行動指針
+├── PLANS.md                 # 実装計画
 ├── README.md                # 本ドキュメント
 └── pyproject.toml           # 依存管理
 ```

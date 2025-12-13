@@ -16,12 +16,13 @@
 
 ## サンプル一覧
 
-| ディレクトリ                                                       | 概要                                                                                                          | ブログ記事                                                |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [samples/password-generator-cli](./samples/password-generator-cli) | パスワード生成ツールと PyInstaller を使ったPythonコード → EXE化のサンプルです。                               | https://www.wanchiku.com/pyinstaller-chatgpt-password/    |
-| [samples/file-renamer-cli](./samples/file-renamer-cli)             | Codexを使ってコーディングしないで作った「ファイル名一括リネーマーツール」です。                               | https://www.wanchiku.com/codex-uv-python-cli-sample/      |
-| [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPT+CodexでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「ログフィルターCLIツール」です。         | https://www.wanchiku.com/agents-md-autogen-logfilter-cli/ |
-| [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPTなし、CodexのみでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「CSVフィルターCLIツール」です。 | https://www.wanchiku.com/codex-csvfilter-cli-report/      |
+| ディレクトリ                                                       | 概要                                                                                                          | ブログ記事                                                      |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [samples/password-generator-cli](./samples/password-generator-cli) | パスワード生成ツールと PyInstaller を使ったPythonコード → EXE化のサンプルです。                               | https://www.wanchiku.com/pyinstaller-chatgpt-password/          |
+| [samples/file-renamer-cli](./samples/file-renamer-cli)             | Codexを使ってコーディングしないで作った「ファイル名一括リネーマーツール」です。                               | https://www.wanchiku.com/codex-uv-python-cli-sample/            |
+| [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPT+CodexでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「ログフィルターCLIツール」です。         | https://www.wanchiku.com/agents-md-autogen-logfilter-cli/       |
+| [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPTなし、CodexのみでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「CSVフィルターCLIツール」です。 | https://www.wanchiku.com/codex-csvfilter-cli-report/            |
+| [samples/python-common-sample](./samples/python-common-sample)     | ChatGPT+Codexで作ったPythonでよく使用する共通機能です。                                                       | https://www.wanchiku.com/python-common-functions-chatgpt-codex/ |
 
 ---
 
@@ -78,7 +79,6 @@ Codex対応サンプルでは、プロジェクト直下に以下の2ファイ�
 * `AGENTS.md` : 実装ポリシー（命名規則、例外、関数長など）
 * `PLANS.md` : 各サンプルの進行手順（テスト→実装→CLI→ドキュメント）
 
-専用の `codex/` ディレクトリは作成していません。  
 Codexを使用しないサンプルでは、これらのファイルは含まれません。
 
 ---
@@ -92,9 +92,10 @@ uv pip install pre-commit ruff black pytest
 pre-commit install
 ```
 
-`.pre-commit-config.yaml` はリポジトリ直下に置き、ルートで `pre-commit install` を実行して共有設定を適用します。  
-pre-commitの詳しい説明は下記のブログ記事を見てください。
-https://www.wanchiku.com/python-monorepo-precommit/  
+`.pre-commit-config.yaml` はリポジトリ直下に置き、ルートで `pre-commit install` を実行して共有設定を適用します。
+  
+pre-commitの詳しい説明は下記のブログ記事を見てください。  
+https://www.wanchiku.com/python-monorepo-precommit/
 
 ---
 
