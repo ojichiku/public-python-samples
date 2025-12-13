@@ -27,4 +27,5 @@ testpaths = [
 [tool.uv.workspace]
 members = [
     "samples/python-common-sample",
+    "samples/password-generator-gui",
 ]
