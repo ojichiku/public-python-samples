@@ -15,6 +15,7 @@ from PySide6.QtGui import QGuiApplication
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import (
     QCheckBox,
+    QLineEdit,
     QMainWindow,
     QMessageBox,
     QPushButton,
@@ -23,7 +24,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from password_gui.generator import generate_passwords
+from password_gui.generator import DEFAULT_SYMBOLS, generate_passwords
 
 _TWidget = TypeVar("_TWidget", bound=QWidget)
 
@@ -68,6 +69,8 @@ class MainWindow(QMainWindow):
         self.chkUpper = self._find(QCheckBox, "chkUpper")
         self.chkSymbols = self._find(QCheckBox, "chkSymbols")
         self.chkExcludeAmbiguous = self._find(QCheckBox, "chkExcludeAmbiguous")
+        self.txtSymbols = self._find(QLineEdit, "txtSymbols")
+        self.btnResetSymbols = self._find(QPushButton, "btnResetSymbols")
         self.btnGenerate = self._find(QPushButton, "btnGenerate")
         self.btnClear = self._find(QPushButton, "btnClear")
         self.btnCopySelected = self._find(QPushButton, "btnCopySelected")
@@ -148,6 +151,9 @@ class MainWindow(QMainWindow):
         self.btnClear.clicked.connect(self.on_clear_clicked)
         self.btnCopySelected.clicked.connect(self.on_copy_selected_clicked)
         self.btnCopyAll.clicked.connect(self.on_copy_all_clicked)
+        self.btnResetSymbols.clicked.connect(self.on_reset_symbols_clicked)
+        self.chkSymbols.toggled.connect(self._update_symbols_enabled)
+        self._update_symbols_enabled(self.chkSymbols.isChecked())
 
     def _restore_settings(self) -> None:
         """前回終了時の設定を復元する（任意機能）。"""
@@ -169,10 +175,20 @@ class MainWindow(QMainWindow):
             if isinstance(value, bool):
                 checkbox.setChecked(value)
 
+        symbols_text = self._settings.value("symbols")
+        if isinstance(symbols_text, str) and symbols_text != "":
+            self.txtSymbols.setText(symbols_text)
+        else:
+            self.txtSymbols.setText(DEFAULT_SYMBOLS)
+
     def _save_settings(self) -> None:
         """現在の設定を保存する（任意機能）。"""
         self._settings.setValue("length", self.spinLength.value())
         self._settings.setValue("count", self.spinCount.value())
+        symbols_text = self.txtSymbols.text()
+        self._settings.setValue(
+            "symbols", symbols_text if symbols_text != "" else DEFAULT_SYMBOLS
+        )
         self._settings.setValue("chk/digits", self.chkDigits.isChecked())
         self._settings.setValue("chk/lower", self.chkLower.isChecked())
         self._settings.setValue("chk/upper", self.chkUpper.isChecked())
@@ -205,6 +221,7 @@ class MainWindow(QMainWindow):
         length = self.spinLength.value()
         count = self.spinCount.value()
         exclude_ambiguous = self.chkExcludeAmbiguous.isChecked()
+        symbols = self.txtSymbols.text()
 
         try:
             passwords = generate_passwords(
@@ -212,9 +229,10 @@ class MainWindow(QMainWindow):
                 kinds=kinds,
                 count=count,
                 exclude_ambiguous=exclude_ambiguous,
+                symbols=symbols,
             )
         except ValueError as e:
-            QMessageBox.warning(self, "Error", str(e))
+            QMessageBox.warning(self, "エラー", str(e))
             if self.statusBar() is not None:
                 self.statusBar().showMessage(str(e), 5000)
             return
@@ -244,7 +262,7 @@ class MainWindow(QMainWindow):
         selected = self.txtResult.textCursor().selectedText()
         selected = selected.replace("\u2029", "\n").strip()
         if not selected:
-            QMessageBox.information(self, "Info", "選択行がありません")
+            QMessageBox.information(self, "情報", "選択行がありません")
             return
         self._copy_to_clipboard(selected)
 
@@ -252,6 +270,21 @@ class MainWindow(QMainWindow):
         """「全てコピー」ボタン押下時の処理を行う。"""
         text = self.txtResult.toPlainText().strip()
         if not text:
-            QMessageBox.information(self, "Info", "結果が空です")
+            QMessageBox.information(self, "情報", "結果が空です")
             return
         self._copy_to_clipboard(text)
+
+    def _update_symbols_enabled(self, enabled: bool) -> None:
+        """記号入力欄の有効/無効を切り替える。
+
+        Args:
+            enabled: True の場合に入力可能とする。
+        """
+        self.txtSymbols.setEnabled(enabled)
+        self.btnResetSymbols.setEnabled(enabled)
+
+    def on_reset_symbols_clicked(self) -> None:
+        """記号セットを既定値へ戻す。"""
+        self.txtSymbols.setText(DEFAULT_SYMBOLS)
+        if self.statusBar() is not None:
+            self.statusBar().showMessage("記号セットを既定値に戻しました", 2000)

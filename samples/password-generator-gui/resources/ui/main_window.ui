@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Password Generator</string>
+   <string>パスワード生成</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -23,7 +23,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="labelLength">
         <property name="text">
-         <string>Length</string>
+         <string>長さ</string>
         </property>
        </widget>
       </item>
@@ -43,7 +43,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="labelCount">
         <property name="text">
-         <string>Count</string>
+         <string>生成数</string>
         </property>
        </widget>
       </item>
@@ -60,18 +60,49 @@
         </property>
        </widget>
       </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelSymbols">
+        <property name="text">
+         <string>使用する記号</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="layoutSymbols">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="txtSymbols">
+          <property name="placeholderText">
+           <string>例: !@#$... （空の場合は既定値）</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnResetSymbols">
+          <property name="text">
+           <string>既定値</string>
+          </property>
+          <property name="toolTip">
+           <string>記号セットを既定値に戻します</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </item>
     <item>
      <widget class="QGroupBox" name="groupSets">
       <property name="title">
-       <string>Character sets</string>
+       <string>文字種</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QCheckBox" name="chkDigits">
          <property name="text">
-          <string>Digits (0-9)</string>
+          <string>数字 (0-9)</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -81,7 +112,7 @@
        <item row="0" column="1">
         <widget class="QCheckBox" name="chkLower">
          <property name="text">
-          <string>Lowercase (a-z)</string>
+          <string>小文字 (a-z)</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -91,7 +122,7 @@
        <item row="1" column="0">
         <widget class="QCheckBox" name="chkUpper">
          <property name="text">
-          <string>Uppercase (A-Z)</string>
+          <string>大文字 (A-Z)</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -101,7 +132,7 @@
        <item row="1" column="1">
         <widget class="QCheckBox" name="chkSymbols">
          <property name="text">
-          <string>Symbols</string>
+          <string>記号</string>
          </property>
          <property name="checked">
           <bool>true</bool>
@@ -114,7 +145,7 @@
     <item>
      <widget class="QCheckBox" name="chkExcludeAmbiguous">
       <property name="text">
-       <string>Exclude ambiguous characters (0 O 1 I l)</string>
+       <string>紛らわしい文字 (0 O 1 I l) を除外</string>
       </property>
      </widget>
     </item>
@@ -123,28 +154,28 @@
       <item>
        <widget class="QPushButton" name="btnGenerate">
         <property name="text">
-         <string>&amp;Generate</string>
+         <string>生成(&amp;G)</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnClear">
         <property name="text">
-         <string>&amp;Clear</string>
+         <string>クリア(&amp;C)</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnCopySelected">
         <property name="text">
-         <string>Copy &amp;Selected</string>
+         <string>選択をコピー(&amp;S)</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="btnCopyAll">
         <property name="text">
-         <string>Copy &amp;All</string>
+         <string>全てコピー(&amp;A)</string>
         </property>
        </widget>
       </item>
@@ -169,7 +200,7 @@
         <bool>true</bool>
        </property>
        <property name="placeholderText">
-        <string>Generated passwords will appear here...</string>
+        <string>ここに生成結果が表示されます</string>
        </property>
       </widget>
     </item>

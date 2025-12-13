@@ -93,3 +93,22 @@ class TestGeneratePasswords:
     def test_exclude_ambiguous_raises_when_pool_becomes_empty(self) -> None:
         with pytest.raises(ValueError):
             generator._exclude_ambiguous({"digits": "01"})
+
+    def test_custom_symbols_is_respected(self) -> None:
+        passwords = generator.generate_passwords(
+            length=12,
+            kinds=["symbols"],
+            count=20,
+            symbols="@",
+        )
+        assert all(set(pw) <= {"@"} for pw in passwords)
+
+    def test_symbols_empty_uses_default_symbols(self) -> None:
+        passwords = generator.generate_passwords(
+            length=12,
+            kinds=["symbols"],
+            count=5,
+            symbols="",
+        )
+        default_symbols = set("".join(dict.fromkeys(generator.DEFAULT_SYMBOLS)))
+        assert all(set(pw) <= default_symbols for pw in passwords)

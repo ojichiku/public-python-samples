@@ -102,6 +102,7 @@ def generate_passwords(
     kinds: list[str],
     count: int,
     exclude_ambiguous: bool = False,
+    symbols: str | None = None,
 ) -> list[str]:
     """指定条件でパスワードを複数生成する（GUI からの公開 API）。
 
@@ -113,6 +114,7 @@ def generate_passwords(
         kinds: 使用する文字種（"digits", "lower", "upper", "symbols"）。
         count: 生成数。
         exclude_ambiguous: True の場合、紛らわしい文字（0 O 1 I l）を除外する。
+        symbols: kinds に "symbols" を含む場合に使用する記号セット（未指定/空なら既定値）。
 
     Returns:
         生成されたパスワードのリスト（各要素は 1 行分）。
@@ -135,7 +137,12 @@ def generate_passwords(
     if any(kind not in allowed for kind in kinds):
         raise ValueError("kinds が不正です")
 
-    pools = build_pool(kinds, DEFAULT_SYMBOLS)
+    symbol_set = DEFAULT_SYMBOLS if (symbols is None or symbols == "") else symbols
+    pools = build_pool(kinds, symbol_set)
+    if any(not chars for chars in pools.values()):
+        raise ValueError("候補文字が空です")
+    if not "".join(pools.values()):
+        raise ValueError("候補文字が空です")
     if exclude_ambiguous:
         pools = _exclude_ambiguous(pools)
 
