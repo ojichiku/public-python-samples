@@ -16,9 +16,22 @@ repos:
   # --- Local pytest hook ---
   - repo: local
     hooks:
-      - id: pytest
-        name: Run pytest
-        entry: uv run pytest
+      # - id: pytest
+      #   name: Run pytest
+      #   entry: uv run pytest
+      #   language: system
+      #   types: [python]
+      #   pass_filenames: false
+      - id: pytest-common
+        name: Run pytest (python-common-sample)
+        entry: bash -lc 'cd samples/python-common-sample && uv run pytest'
         language: system
-        types: [python]
         pass_filenames: false
+        files: ^samples/python-common-sample/
+
+      - id: pytest-passgen-gui
+        name: Run pytest (password-generator-gui)
+        entry: bash -lc 'cd samples/password-generator-gui && uv run pytest'
+        language: system
+        pass_filenames: false
+        files: ^samples/password-generator-gui/
