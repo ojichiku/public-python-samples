@@ -1,6 +1,6 @@
 # password-generator-gui
 
-PySide6 + Qt Designer（`.ui`）で作る、パスワード生成 GUI ツールです。
+PySide6 + Qt Designer（`.ui`）で作る、パスワード生成 GUI ツールです。  
 パスワード生成ロジックは既存の CLI 実装を流用しています。
 
 ## 概要
@@ -14,7 +14,7 @@ PySide6 + Qt Designer（`.ui`）で作る、パスワード生成 GUI ツール�
 - Python 3.13+
 - [uv](https://docs.astral.sh/uv/)（推奨）
 
-Linux で日本語が「□」になる場合は、日本語フォントが不足している可能性があります。
+Linux で日本語が「□」になる場合は、日本語フォントが不足している可能性があります。  
 （例: Ubuntu/Debian）:
 ```bash
 sudo apt-get install fonts-noto-cjk
@@ -35,6 +35,7 @@ uv run python -m password_gui
 ## 利用方法（画面の説明）
 
 ### 画面イメージ
+
 ![画面イメージ](./docs/screenshot.png)
 
 ### 入力エリア
@@ -87,7 +88,7 @@ samples/password-generator-gui/
 - https://github.com/ojichiku/public-python-samples/blob/main/samples/password-generator-cli/password_gen.py
 
 ## Nuitka でのビルド（メモ）
-`.ui`（`resources/ui/main_window.ui`）は外部ファイルとして同梱してください。
+`.ui`（`resources/ui/main_window.ui`）は外部ファイルとして同梱してください。  
 （例: `--include-data-file` を使って同梱）
 
 ※ ビルドコマンドは環境/方針で変わるため、ここでは「.ui を同梱する」点のみを必須事項として記載します。
