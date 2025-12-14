@@ -16,15 +16,12 @@ pythonpath = [
   "samples/logfilter-cli/src",
   "samples/password-generator-cli",
   "samples/python-common-sample/src",
+  "samples/password-generator-gui/src",
 ]
 testpaths = [
   "samples/csvfilter-cli/tests",
   "samples/file-renamer-cli/tests",
   "samples/logfilter-cli/tests",
   "samples/python-common-sample/tests",
-]
-
-[tool.uv.workspace]
-members = [
-    "samples/python-common-sample",
+  "samples/password-generator-gui/tests",
 ]
