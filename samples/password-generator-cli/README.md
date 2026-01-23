@@ -50,14 +50,15 @@ Python スクリプトとして動かす場合の実行方法です。
 python password_gen.py -l 20 -k digits lower upper symbols -n 3
 ```
 
-* `-l / --length` : パスワード長（上記例では 20 文字）
-* `-k / --kinds`  : 使用する文字種
+* `-l / --length` : パスワード長（デフォルト 16、上記例では 20 文字）
+* `-k / --kinds`  : 使用する文字種（デフォルト: digits lower upper symbols）
 
   * `digits`   : 数字
   * `lower`    : 英小文字
   * `upper`    : 英大文字
   * `symbols`  : 記号
 * `-n / --count`  : 生成するパスワード個数（上記例では 3 個）
+* `--symbols`     : 記号セットを上書き（デフォルト: `!@#$%^&*()-_=+[]{};:,.?/\\`）
 
 実行すると、例えば次のような出力が得られます（毎回変わります）。
 
@@ -118,6 +119,32 @@ passgen.exe -l 20 -k digits lower upper symbols -n 3
 
 ---
 
+## Nuitka で EXE を作る（最小手順）
+
+### onedir（推奨：安定しやすい配布形式）
+
+onedir 形式は「EXE本体＋必要なDLLなどをまとめたフォルダ」を作る方式です。
+
+```bash
+python -m nuitka --standalone --output-dir=dist --output-filename=passgen.exe password_gen.py
+```
+
+実行後、以下のような構成になります。
+
+```text
+dist/
+└─ password_gen.dist/
+   ├─ passgen.exe
+   └─ そのほかDLLや依存ファイル
+```
+
+実行するときは、`dist/password_gen.dist/` に移動して次のように実行します。
+
+```bash
+cd dist/password_gen.dist
+passgen.exe -l 20 -k digits lower upper symbols -n 3
+```
+
 ## 配布時の最小ポイント
 
 * onedir → フォルダごと ZIP にして配布
@@ -133,4 +160,3 @@ passgen.exe -l 20 -k digits lower upper symbols -n 3
 * onedir が安定、onefile は軽量だが環境依存の差が出やすい
 * 詳細手順と説明は次のブログ記事にて補足  
   https://www.wanchiku.com/pyinstaller-chatgpt-password/
-
