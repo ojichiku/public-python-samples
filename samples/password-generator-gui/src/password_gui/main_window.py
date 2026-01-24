@@ -41,9 +41,24 @@ def resource_path(relative_path: str) -> Path:
         実ファイルのパス。
     """
 
+    bases: list[Path] = []
     if hasattr(sys, "_MEIPASS"):
-        return Path(sys._MEIPASS) / relative_path  # type: ignore[attr-defined]
-    return Path(__file__).resolve().parents[2] / relative_path
+        bases.append(Path(sys._MEIPASS))  # type: ignore[attr-defined]
+    if getattr(sys, "frozen", False):
+        bases.append(Path(sys.executable).resolve().parent)
+    bases.append(Path(__file__).resolve().parents[2])
+
+    candidates = [relative_path]
+    if relative_path.startswith("src/"):
+        candidates.append(relative_path.removeprefix("src/"))
+
+    for base in bases:
+        for candidate in candidates:
+            path = base / candidate
+            if path.exists():
+                return path
+
+    return bases[0] / candidates[0]
 
 
 class MainWindow(QMainWindow):
