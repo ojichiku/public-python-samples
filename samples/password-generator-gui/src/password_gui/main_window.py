@@ -35,7 +35,7 @@ def resource_path(relative_path: str) -> Path:
     Nuitka / PyInstaller 等で EXE 化された場合でも `.ui` をファイルシステムから読み込めるようにする。
 
     Args:
-        relative_path: プロジェクトルートからの相対パス（例: "resources/ui/main_window.ui"）。
+        relative_path: プロジェクトルートからの相対パス（例: "src/resources/ui/main_window.ui"）。
 
     Returns:
         実ファイルのパス。
@@ -91,7 +91,7 @@ class MainWindow(QMainWindow):
             RuntimeError: UI のロードに失敗した場合。
             TypeError: ルートが `QMainWindow` ではない場合。
         """
-        ui_path = resource_path("resources/ui/main_window.ui")
+        ui_path = resource_path("src/resources/ui/main_window.ui")
         if not ui_path.exists():
             raise FileNotFoundError(f".ui が見つかりません: {ui_path}")
 

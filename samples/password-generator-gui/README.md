@@ -69,10 +69,10 @@ samples/password-generator-gui/
   PLANS.md
   README.md
   pyproject.toml
-  resources/
-    ui/
-      main_window.ui        # Qt Designer の UI（XML）
   src/
+    resources/
+      ui/
+        main_window.ui      # Qt Designer の UI（XML）
     password_gui/
       __init__.py
       __main__.py           # python -m password_gui
@@ -88,7 +88,7 @@ samples/password-generator-gui/
 - https://github.com/ojichiku/public-python-samples/blob/main/samples/password-generator-cli/password_gen.py
 
 ## Nuitka でのビルド（メモ）
-`.ui`（`resources/ui/main_window.ui`）は外部ファイルとして同梱してください。  
+`.ui`（`src/resources/ui/main_window.ui`）は外部ファイルとして同梱してください。  
 （例: `--include-data-file` を使って同梱）
 
 ※ ビルドコマンドは環境/方針で変わるため、ここでは「.ui を同梱する」点のみを必須事項として記載します。
