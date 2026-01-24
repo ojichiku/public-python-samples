@@ -36,3 +36,7 @@
 # .github export-ignore
 # tests/ export-ignore
 # .pre-commit-config.yaml export-ignore
+
+# Windows実行が前提のスクリプトはCRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
