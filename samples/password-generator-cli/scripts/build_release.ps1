@@ -82,4 +82,10 @@ if (-not (Test-Path -Path $readme)) {
 }
 Copy-Item -Path $readme -Destination (Join-Path $ReleaseDir "README.txt")
 
+$licenses = Join-Path $OutputRoot "LICENSES"
+if (-not (Test-Path -Path $licenses)) {
+    throw "[ERROR] LICENSES not found: $licenses"
+}
+Copy-Item -Path $licenses -Destination (Join-Path $ReleaseDir "LICENSES")
+
 Write-Host "[OK] Release output: $ReleaseDir"
