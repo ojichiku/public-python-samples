@@ -54,3 +54,5 @@ Thumbs.db
 # --- Project specific (必要なら解除) ---
 # /docs/_build/     # Sphinx等
 # /examples/output/ # サンプル出力物
+samples/password-generator-cli/release/PasswordGeneratorCLI
+samples/password-generator-cli/release/*.zip
