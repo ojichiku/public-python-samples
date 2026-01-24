@@ -49,7 +49,7 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     repo_root = Path(__file__).resolve().parents[1]
-    entry = repo_root / "src" / "password_gui" / "__main__.py"
+    entry = repo_root / "src" / "password_gui"
     ui_file = repo_root / "src" / "resources" / "ui" / "main_window.ui"
     dist_root = repo_root / "dist"
     output_root = repo_root / "release"
@@ -77,6 +77,7 @@ def main(argv: list[str] | None = None) -> None:
             "nuitka",
             "--standalone",
             "--enable-plugin=pyside6",
+            "--python-flag=-m",
             f"--output-dir={dist_root}",
             f"--output-filename={args.exe_name}",
             f"--include-data-file={ui_file}=src/resources/ui/main_window.ui",
