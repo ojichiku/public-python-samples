@@ -51,6 +51,7 @@ def main(argv: list[str] | None = None) -> None:
     repo_root = Path(__file__).resolve().parents[1]
     entry = repo_root / "src" / "password_gui"
     ui_file = repo_root / "src" / "resources" / "ui" / "main_window.ui"
+    logging_ini = repo_root / "src" / "password_gui" / "logging.ini"
     dist_root = repo_root / "dist"
     output_root = repo_root / "release"
     release_dir = output_root / args.app_name
@@ -60,6 +61,8 @@ def main(argv: list[str] | None = None) -> None:
         raise SystemExit(f"[ERROR] エントリポイントが見つかりません: {entry}")
     if not ui_file.exists():
         raise SystemExit(f"[ERROR] main_window.ui が見つかりません: {ui_file}")
+    if not logging_ini.exists():
+        raise SystemExit(f"[ERROR] logging.ini が見つかりません: {logging_ini}")
 
     if release_dir.exists():
         if args.clean:
@@ -80,7 +83,8 @@ def main(argv: list[str] | None = None) -> None:
             "--python-flag=-m",
             f"--output-dir={dist_root}",
             f"--output-filename={args.exe_name}",
-            f"--include-data-file={ui_file}=src/resources/ui/main_window.ui",
+            f"--include-data-file={ui_file}=password_gui/resources/ui/main_window.ui",
+            f"--include-data-file={logging_ini}=password_gui/logging.ini",
             str(entry),
         ]
         _run(cmd, cwd=repo_root)

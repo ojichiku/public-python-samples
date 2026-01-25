@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from pathlib import Path
 import logging
-import logging.config
 import sys
 from typing import TypeVar
 
@@ -27,38 +26,12 @@ from PySide6.QtWidgets import (
 )
 
 from password_gui.generator import DEFAULT_SYMBOLS, generate_passwords
+from password_gui import paths
 
 _TWidget = TypeVar("_TWidget", bound=QWidget)
 
-
-def _log_base_dir() -> Path:
-    """ログ出力先の基準フォルダ（src配下）を返す。"""
-    if getattr(sys, "frozen", False):
-        return Path(sys.executable).resolve().parent / "src"
-    return Path(__file__).resolve().parents[2] / "src"
-
-
-def _configure_logging() -> logging.Logger:
-    """logging.ini を読み込んでロガーを初期化する。"""
-    config_path = Path(__file__).resolve().parent / "logging.ini"
-    log_path = _log_base_dir() / "log" / "app.log"
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        log_path_str = str(log_path).replace("\\", "/")
-        logging.config.fileConfig(
-            config_path,
-            defaults={"log_file": log_path_str},
-            disable_existing_loggers=False,
-        )
-    except OSError:
-        logging.basicConfig(
-            level=logging.INFO,
-            handlers=[logging.FileHandler(log_path, encoding="utf-8")],
-        )
-    return logging.getLogger(__name__)
-
-
-logger = _configure_logging()
+paths.init_logging()
+logger = logging.getLogger(__name__)
 
 
 def resource_path(relative_path: str) -> Path:
@@ -73,18 +46,15 @@ def resource_path(relative_path: str) -> Path:
         実ファイルのパス。
     """
 
-    bases: list[Path] = []
-    if hasattr(sys, "_MEIPASS"):
-        bases.append(Path(sys._MEIPASS))  # type: ignore[attr-defined]
-    if getattr(sys, "frozen", False):
-        exe_dir = Path(sys.executable).resolve().parent
-        bases.append(exe_dir)
-        bases.append(exe_dir / "src")
-    bases.append(Path(__file__).resolve().parents[2])
+    bases = paths.get_resource_bases()
 
     candidates = [relative_path]
     if relative_path.startswith("src/"):
         candidates.append(relative_path.removeprefix("src/"))
+    if relative_path.startswith("src/resources/"):
+        candidates.append(
+            relative_path.replace("src/resources/", "password_gui/resources/")
+        )
 
     logger.info("[resource_path] frozen=%s", getattr(sys, "frozen", False))
     logger.info("[resource_path] bases=%s", bases)
