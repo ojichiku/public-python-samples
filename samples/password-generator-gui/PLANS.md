@@ -22,7 +22,7 @@
 ### 作業内容
 - `samples/password-generator-gui/` ディレクトリ作成
 - `src/password_gui/` パッケージ作成
-- `resources/ui/` ディレクトリ作成
+- `src/resources/ui/` ディレクトリ作成
 - `pyproject.toml` に PySide6 / pytest を追加
 - 空の README.md を作成
 
@@ -46,7 +46,7 @@
   - chkExcludeAmbiguous
   - btnGenerate / btnClear / btnCopySelected / btnCopyAll
   - txtResult
-- `main_window.ui` が XML として `resources/ui/` に保存されている
+- `main_window.ui` が XML として `src/resources/ui/` に保存されている
 
 ---
 

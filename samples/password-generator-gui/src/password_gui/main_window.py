@@ -7,6 +7,7 @@ Qt Designer で作成した `.ui` を実行時に読み込み、objectName を�
 from __future__ import annotations
 
 from pathlib import Path
+import logging
 import sys
 from typing import TypeVar
 
@@ -25,8 +26,12 @@ from PySide6.QtWidgets import (
 )
 
 from password_gui.generator import DEFAULT_SYMBOLS, generate_passwords
+from password_gui import paths
 
 _TWidget = TypeVar("_TWidget", bound=QWidget)
+
+paths.init_logging()
+logger = logging.getLogger(__name__)
 
 
 def resource_path(relative_path: str) -> Path:
@@ -35,15 +40,34 @@ def resource_path(relative_path: str) -> Path:
     Nuitka / PyInstaller 等で EXE 化された場合でも `.ui` をファイルシステムから読み込めるようにする。
 
     Args:
-        relative_path: プロジェクトルートからの相対パス（例: "resources/ui/main_window.ui"）。
+        relative_path: プロジェクトルートからの相対パス（例: "src/resources/ui/main_window.ui"）。
 
     Returns:
         実ファイルのパス。
     """
 
-    if hasattr(sys, "_MEIPASS"):
-        return Path(sys._MEIPASS) / relative_path  # type: ignore[attr-defined]
-    return Path(__file__).resolve().parents[2] / relative_path
+    bases = paths.get_resource_bases()
+
+    candidates = [relative_path]
+    if relative_path.startswith("src/"):
+        candidates.append(relative_path.removeprefix("src/"))
+    if relative_path.startswith("src/resources/"):
+        candidates.append(
+            relative_path.replace("src/resources/", "password_gui/resources/")
+        )
+
+    logger.info("[resource_path] frozen=%s", getattr(sys, "frozen", False))
+    logger.info("[resource_path] bases=%s", bases)
+    logger.info("[resource_path] candidates=%s", candidates)
+    for base in bases:
+        for candidate in candidates:
+            path = base / candidate
+            if path.exists():
+                logger.info("[resource_path] hit=%s", path)
+                return path
+
+    logger.info("[resource_path] miss")
+    return bases[0] / candidates[0]
 
 
 class MainWindow(QMainWindow):
@@ -91,7 +115,7 @@ class MainWindow(QMainWindow):
             RuntimeError: UI のロードに失敗した場合。
             TypeError: ルートが `QMainWindow` ではない場合。
         """
-        ui_path = resource_path("resources/ui/main_window.ui")
+        ui_path = resource_path("src/resources/ui/main_window.ui")
         if not ui_path.exists():
             raise FileNotFoundError(f".ui が見つかりません: {ui_path}")
 

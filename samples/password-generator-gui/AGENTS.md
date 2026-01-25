@@ -49,7 +49,7 @@ test_generator.py
 
 ## UI仕様（main_window.ui）
 ### 1) UIファイル
-- 置き場所：`resources/ui/main_window.ui`
+- 置き場所：`src/resources/ui/main_window.ui`
 - Qt Designerで作成し、XMLとしてコミットする。
 
 ### 2) objectName（固定・必須）
@@ -120,7 +120,7 @@ def generate_passwords(
 
 #### UIロード（必須）
 
-* `.ui` のパスは `resources/ui/main_window.ui`
+* `.ui` のパスは `src/resources/ui/main_window.ui`
 * 実行時カレントに依存しないように、`Path(__file__)` 基準で解決する。
 
 #### ボタン動作（必須）
@@ -179,7 +179,7 @@ def generate_passwords(
 ## 完了条件（Acceptance Criteria）
 
 * `python -m password_gui` でGUIが起動する
-* `.ui` は XML として `resources/ui/main_window.ui` に存在する
+* `.ui` は XML として `src/resources/ui/main_window.ui` に存在する
 * 指定の objectName が設定されている
 * 生成・クリア・コピー（選択/全体）が動作する
 * 生成ロジックは CLI の `password_gen.py` を流用し、勝手な仕様変更がない
@@ -208,7 +208,7 @@ def generate_passwords(
 ## Nuitkaビルド前提ルール（最重要）
 
 ### 1. リソース（.ui）の扱い
-- `resources/ui/main_window.ui` は **外部ファイルとして同梱**する。
+- `src/resources/ui/main_window.ui` は **外部ファイルとして同梱**する。
 - Pythonコードでは **ファイルシステムから読み込む設計**にする（pkgutil等は使わない）。
 
 #### UIファイルパス解決ルール（必須）
