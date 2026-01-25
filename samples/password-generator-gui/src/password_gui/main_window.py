@@ -44,9 +44,10 @@ def _configure_logging() -> logging.Logger:
     log_path = _log_base_dir() / "log" / "app.log"
     log_path.parent.mkdir(parents=True, exist_ok=True)
     try:
+        log_path_str = str(log_path).replace("\\", "/")
         logging.config.fileConfig(
             config_path,
-            defaults={"log_file": str(log_path)},
+            defaults={"log_file": log_path_str},
             disable_existing_loggers=False,
         )
     except OSError:
