@@ -56,3 +56,7 @@ Thumbs.db
 # /examples/output/ # サンプル出力物
 samples/password-generator-cli/release/PasswordGeneratorCLI
 samples/password-generator-cli/release/*.zip
+samples/password-generator-gui/release/PasswordGeneratorGUI
+samples/password-generator-gui/release/*.zip
+
+work/

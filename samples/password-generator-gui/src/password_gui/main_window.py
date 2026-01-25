@@ -7,6 +7,8 @@ Qt Designer で作成した `.ui` を実行時に読み込み、objectName を�
 from __future__ import annotations
 
 from pathlib import Path
+import logging
+import logging.config
 import sys
 from typing import TypeVar
 
@@ -29,6 +31,35 @@ from password_gui.generator import DEFAULT_SYMBOLS, generate_passwords
 _TWidget = TypeVar("_TWidget", bound=QWidget)
 
 
+def _log_base_dir() -> Path:
+    """ログ出力先の基準フォルダ（src配下）を返す。"""
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent / "src"
+    return Path(__file__).resolve().parents[2] / "src"
+
+
+def _configure_logging() -> logging.Logger:
+    """logging.ini を読み込んでロガーを初期化する。"""
+    config_path = Path(__file__).resolve().parent / "logging.ini"
+    log_path = _log_base_dir() / "log" / "app.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        logging.config.fileConfig(
+            config_path,
+            defaults={"log_file": str(log_path)},
+            disable_existing_loggers=False,
+        )
+    except OSError:
+        logging.basicConfig(
+            level=logging.INFO,
+            handlers=[logging.FileHandler(log_path, encoding="utf-8")],
+        )
+    return logging.getLogger(__name__)
+
+
+logger = _configure_logging()
+
+
 def resource_path(relative_path: str) -> Path:
     """リソースファイルのパスを返す。
 
@@ -45,19 +76,26 @@ def resource_path(relative_path: str) -> Path:
     if hasattr(sys, "_MEIPASS"):
         bases.append(Path(sys._MEIPASS))  # type: ignore[attr-defined]
     if getattr(sys, "frozen", False):
-        bases.append(Path(sys.executable).resolve().parent)
+        exe_dir = Path(sys.executable).resolve().parent
+        bases.append(exe_dir)
+        bases.append(exe_dir / "src")
     bases.append(Path(__file__).resolve().parents[2])
 
     candidates = [relative_path]
     if relative_path.startswith("src/"):
         candidates.append(relative_path.removeprefix("src/"))
 
+    logger.info("[resource_path] frozen=%s", getattr(sys, "frozen", False))
+    logger.info("[resource_path] bases=%s", bases)
+    logger.info("[resource_path] candidates=%s", candidates)
     for base in bases:
         for candidate in candidates:
             path = base / candidate
             if path.exists():
+                logger.info("[resource_path] hit=%s", path)
                 return path
 
+    logger.info("[resource_path] miss")
     return bases[0] / candidates[0]
 
 

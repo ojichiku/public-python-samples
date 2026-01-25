@@ -93,10 +93,10 @@ def main(argv: list[str] | None = None) -> None:
         raise SystemExit(f"[ERROR] README.txtがありません: {readme_src}")
     shutil.copy2(readme_src, release_dir / "README.txt")
 
-    licenses_dir = output_root / "LICENSES"
-    if not licenses_dir.exists():
-        raise SystemExit(f"[ERROR] LICENSESがありません: {licenses_dir}")
-    shutil.copytree(licenses_dir, release_dir / "LICENSES")
+    license_file = output_root / "LICENSE"
+    if not license_file.exists():
+        raise SystemExit(f"[ERROR] LICENSEがありません: {license_file}")
+    shutil.copy2(license_file, release_dir / "LICENSE")
 
     zip_base = output_root / args.app_name
     zip_path = zip_base.with_suffix(".zip")

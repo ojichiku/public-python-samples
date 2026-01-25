@@ -59,7 +59,7 @@ uv run python -m password_gui
 ## テスト
 ```bash
 cd samples/password-generator-gui
-uv run --group test pytest
+uv run --group dev pytest
 ```
 
 ## ディレクトリ構成
