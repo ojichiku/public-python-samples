@@ -84,6 +84,8 @@ def get_resource_bases() -> list[Path]:
         if app_dir not in bases:
             bases.append(app_dir)
     else:
-        bases.append(_resolve_app_dir())
+        app_dir = _resolve_app_dir()
+        bases.append(app_dir)
+        bases.append(app_dir / "app")
 
     return bases
