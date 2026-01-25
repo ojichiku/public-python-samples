@@ -79,6 +79,7 @@ def main(argv: list[str] | None = None) -> None:
             "-m",
             "nuitka",
             "--standalone",
+            "--windows-console-mode=disable",
             "--enable-plugin=pyside6",
             "--python-flag=-m",
             f"--output-dir={dist_root}",
