@@ -19,6 +19,7 @@
 | ディレクトリ                                                       | 概要                                                                                                          | ブログ記事                                                      |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | [samples/password-generator-cli](./samples/password-generator-cli) | パスワード生成ツールと PyInstaller を使ったPythonコード → EXE化のサンプルです。                               | https://www.wanchiku.com/pyinstaller-chatgpt-password/          |
+| [samples/beginner-score-cli](./samples/beginner-score-cli)         | Python初心者向けの基本サンプルです。入力・繰り返し・条件分岐・関数を使って点数集計CLIを作っています。          | -                                                               |
 | [samples/file-renamer-cli](./samples/file-renamer-cli)             | Codexを使ってコーディングしないで作った「ファイル名一括リネーマーツール」です。                               | https://www.wanchiku.com/codex-uv-python-cli-sample/            |
 | [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPT+CodexでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「ログフィルターCLIツール」です。         | https://www.wanchiku.com/agents-md-autogen-logfilter-cli/       |
 | [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPTなし、CodexのみでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「CSVフィルターCLIツール」です。 | https://www.wanchiku.com/codex-csvfilter-cli-report/            |

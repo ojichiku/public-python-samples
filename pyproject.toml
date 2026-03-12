@@ -11,6 +11,7 @@ dependencies = [
 
 [tool.pytest.ini_options]
 pythonpath = [
+  "samples/beginner-score-cli/src",
   "samples/csvfilter-cli/src",
   "samples/file-renamer-cli/src",
   "samples/logfilter-cli/src",
@@ -19,6 +20,7 @@ pythonpath = [
   "samples/password-generator-gui/src",
 ]
 testpaths = [
+  "samples/beginner-score-cli/tests",
   "samples/csvfilter-cli/tests",
   "samples/file-renamer-cli/tests",
   "samples/logfilter-cli/tests",
