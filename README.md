@@ -24,6 +24,7 @@
 | [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPT+CodexでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「ログフィルターCLIツール」です。         | https://www.wanchiku.com/agents-md-autogen-logfilter-cli/       |
 | [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPTなし、CodexのみでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「CSVフィルターCLIツール」です。 | https://www.wanchiku.com/codex-csvfilter-cli-report/            |
 | [samples/python-common-sample](./samples/python-common-sample)     | ChatGPT+Codexで作ったPythonでよく使用する共通機能です。                                                       | https://www.wanchiku.com/python-common-functions-chatgpt-codex/ |
+| [samples/python-intro-chatgpt-codex-basics](./samples/python-intro-chatgpt-codex-basics) | Python入門の8章向けに、ChatGPT の質問例と Codex の before/after を公開した最小サンプルです。 | 公開後に追記 |
 
 ---
 
