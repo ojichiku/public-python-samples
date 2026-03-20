@@ -1,0 +1,17 @@
+[project]
+name = "python-advanced-template"
+version = "0.1.0"
+description = "Template project for python-advanced article samples"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+    "pytest>=9.0.1",
+]
+
+[dependency-groups]
+test = [
+    "pytest>=9.0.1",
+]
