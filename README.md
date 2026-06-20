@@ -24,8 +24,7 @@
 | [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPT+CodexでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「ログフィルターCLIツール」です。         | https://www.wanchiku.com/agents-md-autogen-logfilter-cli/       |
 | [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPTなし、CodexのみでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「CSVフィルターCLIツール」です。 | https://www.wanchiku.com/codex-csvfilter-cli-report/            |
 | [samples/python-common-sample](./samples/python-common-sample)     | ChatGPT+Codexで作ったPythonでよく使用する共通機能です。                                                       | https://www.wanchiku.com/python-common-functions-chatgpt-codex/ |
-| [samples/python-intro-chatgpt-codex-basics](./samples/python-intro-chatgpt-codex-basics) | Python入門の8章向けに、ChatGPT の質問例と Codex の before/after を公開した最小サンプルです。 | 公開後に追記 |
-| [samples/python-advanced-template](./samples/python-advanced-template) | `content/python-advanced` 記事向けサンプルの雛形です。長いコードを記事外に切り出すときのベースとして使います。 | 公開後に追記 |
+| [samples/python-intro-chatgpt-codex-basics](./samples/python-intro-chatgpt-codex-basics) | Python入門の8章向けに、ChatGPT の質問例と Codex の before/after を公開した最小サンプルです。 | サンプルは公開中 |
 
 ---
 
@@ -107,15 +106,6 @@ https://www.wanchiku.com/python-monorepo-precommit/
 * 各サンプルのREADME冒頭に、対応するブログ記事のURLを明記します。
 * ブログ側にもGitHub該当ディレクトリへのリンクを設置します。
 * 更新内容はブログの記事末尾の更新履歴に反映します。
-
-### python-advanced 記事の運用メモ
-
-`content/python-advanced` の記事でコードが長くなる場合は、
-`samples/python-advanced-<series>-<slug>` 形式で保存する運用を推奨します。
-
-詳細ルール:
-
-* [work/python-advanced-sample-rules.md](./work/python-advanced-sample-rules.md)
 
 ---
 
