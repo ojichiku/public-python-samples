@@ -17,6 +17,10 @@ wheels/
 .venv/
 # uv が作る一時領域を使う場合
 .uv/
+# --- Environment files ---
+.env
+.env.*
+!.env.example
 # pyenv 等を使わないならコメントのまま
 .python-version
 
