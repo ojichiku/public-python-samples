@@ -26,7 +26,6 @@ def test_calculate_budget_builds_expected_values():
     assert summary.status == "Comfortable"
 
 
-
 def test_build_report_formats_output():
     summary = calculate_budget(10000, [2500, 3000, 1500])
 

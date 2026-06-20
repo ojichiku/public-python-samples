@@ -24,7 +24,7 @@ repos:
       #   pass_filenames: false
       - id: pytest-common
         name: Run pytest (python-common-sample)
-        entry: bash -lc 'cd samples/python-common-sample && uv run pytest'
+        entry: bash -lc 'cd samples/python-common-sample && uv run --group test pytest'
         language: system
         pass_filenames: false
         files: ^samples/python-common-sample/
