@@ -1,0 +1,10 @@
+[project]
+name = "read-markdown-post"
+version = "0.1.0"
+description = "Read title, slug, and body from a Markdown post draft."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.uv]
+package = false
