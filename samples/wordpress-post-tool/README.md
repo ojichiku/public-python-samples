@@ -8,6 +8,7 @@ Markdownファイルから投稿情報を読み込み、WordPressへ下書き投
 
 - Markdownファイルを読み込む
 - タイトル、スラッグ、カテゴリ、タグ、本文を取得する
+- Markdown本文を標準Gutenbergブロック形式に変換する
 - カテゴリ名をWordPress側のIDに変換する
 - タグ名をWordPress側のIDに変換する
 - 存在しないカテゴリ、タグを作成する
@@ -80,9 +81,9 @@ copy .env.example .env
 `.env`にWordPressの接続情報を書きます。
 
 ```env
-WP_URL=https://example.com
-WP_USER=your-user-name
-WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx
+WP_SITE_URL=https://example.com
+WP_USERNAME=your_username
+WP_APP_PASSWORD=your_application_password
 ```
 
 `.env`には本物の接続情報を書くため、GitHubには公開しないでください。
@@ -115,6 +116,9 @@ ChatGPT,WordPress,Python
 これはWordPress投稿ツールのテスト用Markdownです。
 Pythonでこのファイルを読み込み、WordPressへ下書き投稿します。
 ```
+
+`##`、`###`、箇条書き、テーブル、コードブロックなどのMarkdown本文は、Python側で標準Gutenbergブロック形式へ変換してからWordPressへ送信します。
+WordPress側にMarkdown変換プラグインを入れる必要はありません。
 
 ## 実行方法
 

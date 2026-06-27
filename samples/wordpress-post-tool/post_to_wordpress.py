@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any
 
+import markdown
 import requests
 from dotenv import load_dotenv
 
@@ -26,7 +28,7 @@ def get_required_env(name: str) -> str:
         name: 取得する環境変数名。
 
     Returns:
-        環境変数の値。WP_URLの場合は末尾のスラッシュを取り除いた値。
+        環境変数の値。WP_SITE_URLの場合は末尾のスラッシュを取り除いた値。
 
     Raises:
         WordPressPostToolError: 指定した環境変数が未設定の場合。
@@ -38,7 +40,7 @@ def get_required_env(name: str) -> str:
             f"{name} が設定されていません。.envを確認してください。"
         )
 
-    return value.rstrip("/") if name == "WP_URL" else value
+    return value.rstrip("/") if name == "WP_SITE_URL" else value
 
 
 def get_section(text: str, start_marker: str, end_marker: str | None = None) -> str:
@@ -298,6 +300,92 @@ def get_tag_ids(
     ]
 
 
+def convert_markdown_to_html(markdown_text: str) -> str:
+    """Markdown本文をHTMLへ変換します。
+
+    Args:
+        markdown_text: Markdown形式の本文。
+
+    Returns:
+        Markdownから変換したHTML文字列。
+    """
+    return markdown.markdown(
+        markdown_text,
+        extensions=["extra", "fenced_code", "sane_lists", "tables"],
+    )
+
+
+def wrap_gutenberg_block(block_name: str, html_text: str, attrs: str = "") -> str:
+    """HTMLを標準Gutenbergブロックコメントで囲みます。
+
+    Args:
+        block_name: Gutenbergブロック名。
+        html_text: ブロック内に入れるHTML。
+        attrs: ブロックコメントに付けるJSON属性文字列。
+
+    Returns:
+        Gutenbergブロックコメントで囲んだHTML。
+    """
+    attrs_text = f" {attrs}" if attrs else ""
+    return (
+        f"<!-- wp:{block_name}{attrs_text} -->\n{html_text}\n<!-- /wp:{block_name} -->"
+    )
+
+
+def convert_html_to_gutenberg_blocks(html_text: str) -> str:
+    """HTMLを標準Gutenbergブロック形式へ変換します。
+
+    Args:
+        html_text: Markdownから変換したHTML文字列。
+
+    Returns:
+        標準Gutenbergブロックコメントを含むHTML文字列。
+    """
+    token_pattern = re.compile(
+        r"<h[1-6][^>]*>.*?</h[1-6]>"
+        r"|<p>.*?</p>"
+        r"|<ul[^>]*>.*?</ul>"
+        r"|<ol[^>]*>.*?</ol>"
+        r"|<table[^>]*>.*?</table>"
+        r"|<pre[^>]*><code[^>]*>.*?</code></pre>",
+        flags=re.DOTALL,
+    )
+
+    blocks = []
+    for match in token_pattern.finditer(html_text):
+        html_block = match.group(0).strip()
+
+        if re.match(r"^<h[1-6][^>]*>", html_block):
+            level_match = re.match(r"^<h([1-6])", html_block)
+            level = int(level_match.group(1)) if level_match else 2
+            attrs = "" if level == 2 else f'{{"level":{level}}}'
+            blocks.append(wrap_gutenberg_block("heading", html_block, attrs))
+        elif html_block.startswith("<p>"):
+            blocks.append(wrap_gutenberg_block("paragraph", html_block))
+        elif html_block.startswith("<ul") or html_block.startswith("<ol"):
+            blocks.append(wrap_gutenberg_block("list", html_block))
+        elif html_block.startswith("<table"):
+            figure = f'<figure class="wp-block-table">{html_block}</figure>'
+            blocks.append(wrap_gutenberg_block("table", figure))
+        elif html_block.startswith("<pre"):
+            blocks.append(wrap_gutenberg_block("code", html_block))
+
+    return "\n\n".join(blocks)
+
+
+def convert_markdown_to_gutenberg_blocks(markdown_text: str) -> str:
+    """Markdown本文を標準Gutenbergブロック形式へ変換します。
+
+    Args:
+        markdown_text: Markdown形式の本文。
+
+    Returns:
+        WordPressへ送信する標準Gutenbergブロック形式の本文。
+    """
+    html_text = convert_markdown_to_html(markdown_text)
+    return convert_html_to_gutenberg_blocks(html_text)
+
+
 def post_to_wordpress(
     wp_url: str,
     wp_user: str,
@@ -327,10 +415,11 @@ def post_to_wordpress(
     )
 
     tag_ids = get_tag_ids(wp_url, wp_user, wp_app_password, article["tags"])
+    body_blocks = convert_markdown_to_gutenberg_blocks(article["body"])
 
     post_data = {
         "title": article["title"],
-        "content": article["body"],
+        "content": body_blocks,
         "status": "draft",
         "slug": article["slug"],
         "categories": [category_id],
@@ -360,8 +449,8 @@ def main() -> None:
     """環境変数とMarkdownファイルを読み込み、WordPressへ下書き投稿します。"""
     load_dotenv()
 
-    wp_url = get_required_env("WP_URL")
-    wp_user = get_required_env("WP_USER")
+    wp_url = get_required_env("WP_SITE_URL")
+    wp_user = get_required_env("WP_USERNAME")
     wp_app_password = get_required_env("WP_APP_PASSWORD")
 
     article = read_markdown_file("sample_post.md")
