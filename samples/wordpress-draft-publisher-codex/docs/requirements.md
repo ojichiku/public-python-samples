@@ -26,7 +26,7 @@ Markdownで書いた記事を読み込み、WordPress REST APIを使ってWordPr
 例：
 
 ```text
-samples/wordpress-post-tool-codex/
+samples/wordpress-draft-publisher-codex/
 ```
 
 このフォルダ配下に、必要なファイルを作成してください。
@@ -36,7 +36,7 @@ samples/wordpress-post-tool-codex/
 最低限、以下のファイルを作成してください。
 
 ```text
-samples/wordpress-post-tool-codex/
+samples/wordpress-draft-publisher-codex/
   AGENTS.md
   PLANS.md
   post_to_wordpress.py
