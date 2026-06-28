@@ -54,7 +54,7 @@ Pythonコードの表示確認です。
 from pathlib import Path
 
 
-markdown_text = Path("draft/sample_post.md").read_text(encoding="utf-8")
+markdown_text = Path("docs/sample_post.md").read_text(encoding="utf-8")
 print(markdown_text.splitlines()[0])
 ```
 

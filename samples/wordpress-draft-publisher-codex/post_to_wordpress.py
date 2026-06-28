@@ -8,7 +8,6 @@ import os
 import re
 import shutil
 from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -59,7 +58,9 @@ def load_config() -> WordPressConfig:
     load_dotenv(env_path)
 
     missing = [
-        name for name in ("WP_URL", "WP_USER", "WP_APP_PASSWORD") if not os.getenv(name)
+        name
+        for name in ("WP_SITE_URL", "WP_USERNAME", "WP_APP_PASSWORD")
+        if not os.getenv(name)
     ]
 
     if missing:
@@ -69,8 +70,8 @@ def load_config() -> WordPressConfig:
         )
 
     return WordPressConfig(
-        url=os.environ["WP_URL"].rstrip("/"),
-        user=os.environ["WP_USER"],
+        url=os.environ["WP_SITE_URL"].rstrip("/"),
+        user=os.environ["WP_USERNAME"],
         app_password=os.environ["WP_APP_PASSWORD"],
     )
 
@@ -436,8 +437,13 @@ def get_or_create_term_id(config: WordPressConfig, endpoint: str, name: str) -> 
 
 
 def find_existing_post_id(config: WordPressConfig, slug: str) -> int | None:
-    """スラッグで既存投稿を検索します。"""
-    response = request_wordpress("GET", config, POSTS_ENDPOINT, params={"slug": slug})
+    """スラッグで下書きを含む既存投稿を検索します。"""
+    response = request_wordpress(
+        "GET",
+        config,
+        POSTS_ENDPOINT,
+        params={"slug": slug, "status": "any"},
+    )
     raise_for_api_error(response, f"スラッグ {slug} の投稿検索")
 
     for post in response.json():
@@ -485,24 +491,15 @@ def save_post(config: WordPressConfig, article: Article) -> dict[str, Any]:
     return result
 
 
-def unique_done_path(done_dir: Path, source_path: Path) -> Path:
-    """doneフォルダ内で上書きしない移動先パスを作ります。"""
-    destination = done_dir / source_path.name
-
-    if not destination.exists():
-        return destination
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    return done_dir / f"{source_path.stem}_{timestamp}{source_path.suffix}"
-
-
 def move_to_done(source_path: Path) -> Path:
     """成功したMarkdownファイルをdoneフォルダへ移動します。"""
     done_dir = BASE_DIR / "done"
 
     try:
         done_dir.mkdir(exist_ok=True)
-        destination = unique_done_path(done_dir, source_path)
+        destination = done_dir / source_path.name
+        if destination.exists():
+            destination.unlink()
         shutil.move(str(source_path), destination)
     except OSError as error:
         raise WordPressDraftPublisherError(

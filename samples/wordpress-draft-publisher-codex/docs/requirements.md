@@ -86,16 +86,16 @@ done/
 
 `done` フォルダが存在しない場合は、自動作成してください。
 
-同名ファイルが `done` フォルダに存在する場合は、上書きせず、ファイル名に日時などを付けて移動してください。
+同名ファイルが `done` フォルダに存在する場合は、上書きして移動してください。
 
 ## .env の仕様
 
 `.env` には、以下の情報を設定する想定です。
 
 ```env
-WP_URL=https://example.com
-WP_USER=wordpress_user
-WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx
+WP_SITE_URL=https://example.com
+WP_USERNAME=your_username
+WP_APP_PASSWORD=your_application_password
 ```
 
 `.env` や認証情報はGitHubに公開しない前提にしてください。

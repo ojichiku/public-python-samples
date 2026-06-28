@@ -64,3 +64,9 @@ samples/password-generator-gui/release/PasswordGeneratorGUI
 samples/password-generator-gui/release/*.zip
 
 work/
+
+# --- Runtime files for WordPress draft publisher sample ---
+samples/wordpress-draft-publisher-codex/draft/*
+!samples/wordpress-draft-publisher-codex/draft/.gitkeep
+samples/wordpress-draft-publisher-codex/done/*
+!samples/wordpress-draft-publisher-codex/done/.gitkeep
