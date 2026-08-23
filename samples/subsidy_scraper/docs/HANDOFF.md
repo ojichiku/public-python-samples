@@ -32,7 +32,7 @@ Phase 3では、Phase 2の `parse_subsidies()` を変更せずに利用し、3�
 ## 確定した判断
 
 - Pythonは3.14系を使用する。
-- リポジトリのpre-commit Ruff v0.6.1との互換性のため、Ruffの解析ターゲットだけは `py313` とする。実行Python要件は3.14系のまま維持する。
+- Ruffの解析対象Pythonは、`project.requires-python` の3.14系指定から自動判定する。
 - 本実装では、切り分けでHTTP 200を確認した固定Chrome相当User-Agentを使用する。
 - HTTPアクセス直前に必ず3秒以上待機し、詳細ページにはアクセスしない。
 - 公開日はゼロ埋めした `YYYY/MM/DD` 形式にする。

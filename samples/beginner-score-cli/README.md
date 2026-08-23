@@ -17,6 +17,14 @@ cd samples/beginner-score-cli
 python -m beginner_score_cli
 ```
 
+## テスト
+
+このサンプルではpytestを使用します。
+
+```bash
+uv run pytest
+```
+
 ## 入力例
 
 ```text

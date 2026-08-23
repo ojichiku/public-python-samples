@@ -76,7 +76,7 @@ subsidy_scraper/
 - 自動テストから実サイトへアクセスしません。最小限のHTMLサンプルとモックを使用します。
 - `docs/requirements.md` 第23節の正常系・異常系を網羅します。
 - 特に、アクセス前の3秒待機、固定のChrome相当User-Agent、2026年度だけの抽出、公開日の `YYYY/MM/DD` 変換、期間表記3種類、相対URL、重複除外、UTF-8 BOM、エラー時にCSVを作らないことを確認します。
-- 実装完了時は少なくとも全pytestと、利用する静的チェック／フォーマッタ、`git diff --check` を実行します。
+- 実装完了時は `uv run pytest`、`uv run ruff check .`、`uv run ruff format --check .`、`git diff --check` を実行します。Blackは使用しません。
 - 実サイトでの確認はアクセス回数を最小限にし、必ず3秒待機を含む実装経由で行います。
 
 ## 6. タスクとコンテキストの管理

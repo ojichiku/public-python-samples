@@ -26,9 +26,5 @@ dev = [
 addopts = "--cov=subsidy_scraper --cov-branch --cov-report=term-missing --cov-fail-under=100"
 testpaths = ["tests"]
 
-[tool.ruff]
-# リポジトリのpre-commit Ruff v0.6.1が対応する上限。実行Pythonは3.14系。
-target-version = "py313"
-
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]

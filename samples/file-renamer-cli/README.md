@@ -47,6 +47,14 @@ python -m file_renamer rename --dir ./samples --prefix blog_ --digits 3
 python -m file_renamer replace --dir ./samples --find draft_ --replace final_
 ```
 
+## テスト
+
+このサンプルではpytestを使用します。
+
+```bash
+uv run pytest
+```
+
 ## 注意事項
 - ディレクトリ内のファイルを上書きする可能性があるため、実行前にバックアップを推奨します。
 - `rename` では同名ファイルが存在すると失敗します。処理前にディレクトリの状態を確認してください。

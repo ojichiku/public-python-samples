@@ -72,7 +72,7 @@ python-common-sample
    必要に応じて `logging.ini` をコピーし、`fileHandler` のパスやレベルを変更してください。
 3. **テスト実行**  
    ```bash
-   uv run pytest samples/python-common-sample/tests
+   uv run --group test pytest
    ```
    新しい共通機能を追加した際は、設定ファイルと spec に合わせてテストを追加することを推奨します。
 4. **エラークラスの利用**  

@@ -13,3 +13,7 @@ logfilter-cli = "logfilter_cli.cli:main"
 dev = [
     "pytest>=9.0.1",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

@@ -22,7 +22,7 @@
 | [samples/beginner-score-cli](./samples/beginner-score-cli)         | Python初心者向けの基本サンプルです。入力・繰り返し・条件分岐・関数を使って点数集計CLIを作っています。          | -                                                               |
 | [samples/file-renamer-cli](./samples/file-renamer-cli)             | Codexを使ってコーディングしないで作った「ファイル名一括リネーマーツール」です。                               | https://www.wanchiku.com/codex-uv-python-cli-sample/            |
 | [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPT+CodexでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「ログフィルターCLIツール」です。         | https://www.wanchiku.com/agents-md-autogen-logfilter-cli/       |
-| [samples/logfilter-cli](./samples/logfilter-cli)                   | ChatGPTなし、CodexのみでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「CSVフィルターCLIツール」です。 | https://www.wanchiku.com/codex-csvfilter-cli-report/            |
+| [samples/csvfilter-cli](./samples/csvfilter-cli)                   | ChatGPTなし、CodexのみでAGENTS.md、PLANS.mdを使ってコーディングしないで作った「CSVフィルターCLIツール」です。 | https://www.wanchiku.com/codex-csvfilter-cli-report/            |
 | [samples/python-common-sample](./samples/python-common-sample)     | ChatGPT+Codexで作ったPythonでよく使用する共通機能です。                                                       | https://www.wanchiku.com/python-common-functions-chatgpt-codex/ |
 | [samples/python-intro-chatgpt-codex-basics](./samples/python-intro-chatgpt-codex-basics) | Python入門の8章向けに、ChatGPT の質問例と Codex の before/after を公開した最小サンプルです。 | サンプルは公開中 |
 
@@ -34,14 +34,12 @@
 
 ```bash
 cd samples/xxxx
-uv venv
-uv pip install -e ".[dev]"
-pytest -q
-python -m <package> --help
+uv sync
 ```
 
 * `.venv/` はリポジトリにコミットしません。
 * `uv.lock` を生成してコミットすると、依存関係を再現できます。
+* 追加の依存グループや実行コマンドは、各サンプルのREADMEと `pyproject.toml` を確認してください。
 
 ### 方法B: pip + venvを使用する場合
 
@@ -54,19 +52,16 @@ source .venv/bin/activate
 # Windowsの場合
 .venv\Scripts\activate
 
-pip install -e ".[dev]"
-pytest -q
-python -m <package> --help
 ```
 
-`pip freeze > requirements.txt` で依存を固定したい場合は、各サンプルディレクトリに出力して管理します。
+必要なライブラリと実行コマンドはサンプルごとに異なります。各サンプルのREADMEと `pyproject.toml` に従ってインストールしてください。`pip freeze > requirements.txt` で依存を固定する場合は、各サンプルディレクトリに出力して管理します。
 
 ---
 
 ## 開発規約（共通）
 
 * ディレクトリ構成: `src/<package>/`, `tests/`, `pyproject.toml`
-* 品質維持: `ruff` + `black` + `pytest` を基本セットとして使用
+* 品質ツールは各サンプルで必要なものだけを採用し、各サンプルの設定とREADMEに従って実行
 * CLI形式を推奨。`python -m <package>` で `src/<package>/__main__.py` を実行するか、`pyproject.toml` の `[project.scripts]` にエントリポイントを登録して `pip install -e .` 後にCLI名で呼び出します。
 * 実行ファイル（PyInstallerなどで作るバイナリ）はリポジトリに含めません。
 
@@ -85,19 +80,22 @@ Codexを使用しないサンプルでは、これらのファイルは含まれ
 
 ---
 
-## 推奨ツール
+## 品質ツール
 
-各サンプルディレクトリで、以下のツールを基本セットとして利用します。
+品質ツールはリポジトリ全体で一律に導入せず、各サンプルの `pyproject.toml` に定義されたものだけを使用します。
 
-```bash
-uv pip install pre-commit ruff black pytest
-pre-commit install
-```
+| サンプル | 使用する品質ツール |
+| --- | --- |
+| `beginner-budget-cli` | pytest |
+| `beginner-score-cli` | pytest |
+| `csvfilter-cli` | pytest |
+| `file-renamer-cli` | pytest |
+| `logfilter-cli` | pytest |
+| `password-generator-gui` | pytest |
+| `python-common-sample` | pytest |
+| `subsidy_scraper` | Ruff、pytest |
 
-`.pre-commit-config.yaml` はリポジトリ直下に置き、ルートで `pre-commit install` を実行して共有設定を適用します。
-  
-pre-commitの詳しい説明は下記のブログ記事を見てください。  
-https://www.wanchiku.com/python-monorepo-precommit/
+上表にないサンプルでは、現時点でRuff、Black、pytestを採用していません。具体的な実行コマンドは各サンプルのREADMEまたは `AGENTS.md` を参照してください。
 
 ---
 

@@ -17,6 +17,14 @@ cd samples/beginner-budget-cli
 python -m beginner_budget_cli
 ```
 
+## テスト
+
+このサンプルではpytestを使用します。
+
+```bash
+uv run pytest
+```
+
 ## 入力例
 
 ```text
