@@ -1,16 +1,30 @@
-"""補助金公募一覧のHTML解析処理。"""
+"""補助金公募一覧の取得、解析、CSV保存処理。"""
 
+import csv
 import re
+import time
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 from typing import cast
 from urllib.parse import urljoin
 
+import requests
 from bs4 import BeautifulSoup, Tag
 
 TARGET_YEAR = 2026
 TARGET_YEAR_LABEL = f"{TARGET_YEAR}年度"
 TARGET_URL = "https://www.chusho.meti.go.jp/koukai/hojyokin/kobo.html"
+CSV_FILENAME = "subsidy_kobo_2026.csv"
+HTTP_WAIT_SECONDS = 3.0
+HTTP_TIMEOUT_SECONDS = 30.0
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/131.0.0.0 Safari/537.36"
+)
+CSV_HEADERS = ("公開日", "補助金名", "申請受付期間", "詳細URL")
 
 _HEADING_NAMES = ("h1", "h2", "h3", "h4", "h5", "h6")
 _YEAR_HEADING_PATTERN = re.compile(r"\d{4}年度")
@@ -28,6 +42,18 @@ class TargetYearNotFoundError(HtmlStructureError):
     """対象年度の見出しが見つからない場合のエラー。"""
 
 
+class WebFetchError(RuntimeError):
+    """Webページを取得できない場合のエラー。"""
+
+
+class NoSubsidiesError(RuntimeError):
+    """CSVへ保存できる公募情報が1件もない場合のエラー。"""
+
+
+class CsvSaveError(RuntimeError):
+    """CSVファイルを保存できない場合のエラー。"""
+
+
 @dataclass(frozen=True, slots=True)
 class SubsidyRecord:
     """CSVへ出力する1件分の補助金公募情報。"""
@@ -36,6 +62,84 @@ class SubsidyRecord:
     subsidy_name: str
     application_period: str
     detail_url: str
+
+
+def fetch_html(
+    url: str = TARGET_URL,
+    *,
+    sleep: Callable[[float], None] = time.sleep,
+    get: Callable[..., requests.Response] = requests.get,
+) -> str:
+    """3秒待機した後、固定条件で一覧ページを1回だけ取得する。
+
+    Args:
+        url: 取得する一覧ページのURL。
+        sleep: テストで待機処理を差し替えるための関数。
+        get: テストでHTTPアクセスを差し替えるための関数。
+
+    Returns:
+        取得したHTML。
+
+    Raises:
+        WebFetchError: HTTPエラー、タイムアウト、接続エラーなどの場合。
+    """
+
+    sleep(HTTP_WAIT_SECONDS)
+    try:
+        response = get(
+            url,
+            headers={"User-Agent": USER_AGENT},
+            timeout=HTTP_TIMEOUT_SECONDS,
+        )
+        response.raise_for_status()
+    except requests.RequestException as exc:
+        raise WebFetchError(f"Webページを取得できませんでした: {exc}") from exc
+
+    return response.text
+
+
+def save_subsidies_csv(
+    records: Sequence[SubsidyRecord],
+    output_path: str | Path = CSV_FILENAME,
+) -> Path:
+    """公募情報をヘッダー付きUTF-8 BOMのCSVへ直接保存する。
+
+    Args:
+        records: CSVへ保存する公募情報。
+        output_path: CSVの保存先。
+
+    Returns:
+        保存したCSVのパス。
+
+    Raises:
+        NoSubsidiesError: 保存対象が0件の場合。
+        CsvSaveError: CSVを保存できない場合。
+    """
+
+    if not records:
+        raise NoSubsidiesError(
+            "公募情報を取得できませんでした。サイト構造が変更された可能性があります。"
+        )
+
+    destination = Path(output_path)
+
+    try:
+        with destination.open("w", encoding="utf-8-sig", newline="") as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(CSV_HEADERS)
+            writer.writerows(
+                (
+                    record.published_date,
+                    record.subsidy_name,
+                    record.application_period,
+                    record.detail_url,
+                )
+                for record in records
+            )
+    except OSError as exc:
+        raise CsvSaveError(f"CSVを保存できませんでした: {exc}") from exc
+
+    return destination
 
 
 def normalize_text(value: str) -> str:
