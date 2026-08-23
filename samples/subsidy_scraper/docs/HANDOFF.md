@@ -1,70 +1,82 @@
-# Phase 1 引継ぎ
+# Phase 2 引継ぎ
 
 ## 現在の目標とフェーズ
 
-- 目標: 実サイトのHTML構造を確認し、2026年度の公募情報を抽出する走査方法を決める。
-- フェーズ: `PLANS.md` Phase 1「実サイトのHTML構造調査」は完了。Phase 2は未着手。
-- 状態: User-Agentと公開日形式は確定済み。ユーザーからのPhase 2開始指示待ち。
+- Phase 1「実サイトのHTML構造調査」: 完了
+- Phase 2「最小プロジェクトとHTML解析」: 完了
+- Phase 3「Web取得とCSV保存」: 未着手
+- 状態: ユーザーからのPhase 3開始指示待ち
 
 ## 完了した作業
 
-- `AGENTS.md`、`PLANS.md`、`docs/requirements.md` のPhase 1関連箇所を確認した。
-- 2026-08-23に、対象URLへのアクセス直前に3秒待機した。
-- 識別可能なUser-Agentと30秒のタイムアウトを指定し、対象URLへ1回だけアクセスした。
-- HTTP 403、リダイレクト0回、2,950バイトのHTMLレスポンスを確認した。
-- レスポンスが公募一覧ではなく、「指定されたページまたはファイルは存在しません」というエラーページであることを確認した。
-- ユーザー承認後、User-AgentだけをChrome相当へ変更し、再度3秒待機して1回だけアクセスした。
-- 2回目はHTTP 200となり、17,238バイトの公募一覧HTMLを取得した。
-- 2026年度見出し、2025年度との境界、13件の `dt` / `dd > a` 構造、4項目の取得元を確認した。
-- 調査結果と採用予定の走査方法を `PLANS.md` の「調査記録」と「検証記録」に反映した。
-- 実行したコマンドと結果を `docs/curl_command.md` に記録した。
-- ユーザー確認により、本実装では固定のChrome相当User-Agentを使用する方針に確定した。
-- ユーザー確認により、公開日は `YYYY年M月D日` から `YYYY/MM/DD` へ変換する方針に確定した。
-- 確定事項を `docs/requirements.md`、`AGENTS.md`、`PLANS.md` に同期した。
+- Python 3.14系に限定した `pyproject.toml` を作成した。
+- 実行時依存を `requests` と `beautifulsoup4` に限定した。
+- `src/subsidy_scraper/app.py` にHTML解析を実装した。
+- 2026年度見出しから次年度見出しまでを対象範囲として判定する。
+- `<dt>` と `<dd><a>` の組から公開日、補助金名、申請受付期間、詳細URLを取得する。
+- 公開日を `YYYY年M月D日` から `YYYY/MM/DD` へ変換する。
+- `申請受付期間：`、`申請受付：`、`公募期間：` の3表記を補助金名から分離する。
+- 期間がない場合は空文字とする。
+- 相対URLを絶対URLへ変換する。
+- 公開日、補助金名、詳細URLが同じレコードを重複除外する。
+- 対象年度なし、一覧なし、`dt` / `dd` 不整合、詳細リンクなし、不正な公開日を構造エラーとして扱う。
+- 最小HTMLを使った11件のテストを作成した。
+- `docs/requirements.md`、`AGENTS.md`、`PLANS.md` にPython 3.14の確定事項とPhase 2の結果を反映した。
 
-## 未完了の作業と次の1手
+## 次の1手
 
-Phase 1の調査項目は完了しています。Phase 2以降は未着手です。
+ユーザーから開始指示を受けた後、`PLANS.md` のPhase 3「Web取得とCSV保存」に着手する。
 
-次の具体的な1手は、ユーザーから開始指示を受けた後、`PLANS.md` のPhase 2「最小プロジェクトとHTML解析」に着手することです。
+Phase 3では、Phase 2の `parse_subsidies()` を変更せずに利用し、3秒待機、固定Chrome相当User-Agent、30秒タイムアウト、HTTPエラー処理、UTF-8 BOM付きCSV保存を追加する。
 
-## 確定した判断と根拠
+## 確定した判断
 
-- 403の回避処理や連続アクセスは実装しない。
-  - 根拠: `docs/requirements.md` 第8節および第25節。
-- 本実装では、切り分けでHTTP 200を確認した固定のChrome相当User-Agentを使用する。複数User-Agentの切替は行わない。
-  - 根拠: 2026-08-23のユーザー確認と、更新済みの `docs/requirements.md` 第7節。
-- 公開日は `YYYY年M月D日` から、ゼロ埋めした `YYYY/MM/DD` へ変換する。
-  - 根拠: 2026-08-23のユーザー確認と、更新済みの `docs/requirements.md` 第14節。
-- HTML構造は正常に取得した一覧HTMLに基づき、固定の行番号ではなく2026年度見出しと次年度見出しを境界に判定する。
-  - 根拠: `docs/requirements.md` 第10節および第25節。
+- Pythonは3.14系を使用する。
+- リポジトリのpre-commit Ruff v0.6.1との互換性のため、Ruffの解析ターゲットだけは `py313` とする。実行Python要件は3.14系のまま維持する。
+- 本実装では、切り分けでHTTP 200を確認した固定Chrome相当User-Agentを使用する。
+- HTTPアクセス直前に必ず3秒以上待機し、詳細ページにはアクセスしない。
+- 公開日はゼロ埋めした `YYYY/MM/DD` 形式にする。
+- HTML解析は `src/subsidy_scraper/app.py` に集約し、Phase 2ではファイルを追加分割しない。
+- 自動テストは実サイトへアクセスせず、最小HTMLを使用する。
 
 ## 変更したファイル
 
+- `samples/subsidy_scraper/AGENTS.md`
 - `samples/subsidy_scraper/PLANS.md`
 - `samples/subsidy_scraper/docs/HANDOFF.md`
-- `samples/subsidy_scraper/docs/curl_command.md`
-
-取得したHTMLとレスポンスヘッダーは `/tmp` に置いた一時調査データであり、リポジトリには追加していません。
+- `samples/subsidy_scraper/docs/requirements.md`
+- `samples/subsidy_scraper/main.py`
+- `samples/subsidy_scraper/pyproject.toml`
+- `samples/subsidy_scraper/requirements.txt`
+- `samples/subsidy_scraper/src/subsidy_scraper/__init__.py`
+- `samples/subsidy_scraper/src/subsidy_scraper/app.py`
+- `samples/subsidy_scraper/tests/test_app.py`
+- `samples/subsidy_scraper/uv.lock`
 
 ## 検証結果
 
-- HTTPアクセス前の待機: 3秒
-- HTTPアクセス回数: 2回（各アクセスはユーザー承認に基づき、直前に3秒待機）
-- 1回目: 独自User-Agent、HTTP 403、リダイレクト0回、エラーページ
-- 2回目: Chrome相当User-Agent、HTTP 200、リダイレクト0回、公募一覧HTML
-- HTML構造調査: 完了（2026年度13件、各 `dt` / `dd > a`）
-- Phase 2以降: 未着手
+- Python: 3.14.7
+- `uv run pytest`: 11件成功
+- ステートメントカバレッジ: 100%
+- 分岐カバレッジ: 100%
+- `uv run ruff check .`: 成功
+- `uv run ruff format --check .`: 成功
+- Phase 1で保存した実HTMLのオフライン解析: 13件取得
+- 先頭レコードの公開日: `2026/08/20`
+- 最終レコードの公開日: `2026/04/15`
+- HTTPアクセス: Phase 2では未実施
+- CSV保存: Phase 3のため未実施
+- CLI統合: Phase 4のため未実施
 
-## エラー、ブロッカー、注意点
+## ブロッカーと注意点
 
-- 現在のブロッカーはない。Phase 2の開始指示を待っている。
-- 独自User-Agentでは403、Chrome相当User-Agentでは200となったため、本実装では固定のChrome相当User-Agentを使用する。
-- User-Agentの大量切替、Proxy、アクセス制限回避は行わないこと。
-- 再調査時もHTTPアクセス直前の3秒待機を省略しないこと。
+- 現在のブロッカーはない。
+- ルートの `main.py` はPhase 2で配置だけ行い、実行処理はPhase 4まで追加しない。
+- Phase 3でHTML解析の責務とネットワーク／CSVの責務を混在させすぎないこと。
+- 403、429などが返った場合、アクセス制限を回避する処理を追加しないこと。
 
 ## Git状態
 
 - ブランチ: `main`
-- Phase 1開始時の作業ツリー: クリーン
-- 現在の未コミット変更: `docs/requirements.md`、`AGENTS.md`、`PLANS.md` の更新、`docs/HANDOFF.md` と `docs/curl_command.md` の追加
+- Phase 2開始時の作業ツリー: クリーン
+- Phase 2の変更は未コミット

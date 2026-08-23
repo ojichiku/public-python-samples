@@ -54,6 +54,7 @@ subsidy_scraper/
 
 ## 4. 実装ルール
 
+- Python 3.14を使用し、`pyproject.toml` で3.14系に限定します。
 - HTTP通信には `requests`、HTML解析には `beautifulsoup4`、CSV出力には標準ライブラリの `csv` を使用します。
 - すべてのHTTPアクセスの直前に、必ず3秒以上待機します。待機を無効化する利用者向け設定は作りません。
 - 第1版のHTTPアクセスは一覧ページへの原則1回だけとし、詳細URLへアクセスしません。

@@ -58,17 +58,19 @@ Phase 1は完了。User-Agentと公開日形式の方針はユーザー確認済
 
 必要なコンテキスト: Phase 1の調査記録、`docs/requirements.md` 第9〜15節
 
-- [ ] `pyproject.toml`、`requirements.txt`、`main.py`、`src/subsidy_scraper/`、`tests/` の最小構成を作成する。
-- [ ] `requests` と `beautifulsoup4` だけを実行時依存として定義する。
-- [ ] 2026年度の範囲を切り出す処理を実装する。
-- [ ] 公開日を `YYYY年M月D日` からゼロ埋めした `YYYY/MM/DD` へ変換する。
-- [ ] 公開日、補助金名、申請受付期間、詳細URLを解析・整形する処理を実装する。
-- [ ] 相対URLの絶対URL化と、指定3項目による重複除外を実装する。
-- [ ] 最小HTMLを使った解析テストを作成する。
+- [x] Python 3.14を使用する `pyproject.toml`、`requirements.txt`、`main.py`、`src/subsidy_scraper/`、`tests/` の最小構成を作成する。
+- [x] `requests` と `beautifulsoup4` だけを実行時依存として定義する。
+- [x] 2026年度の範囲を切り出す処理を実装する。
+- [x] 公開日を `YYYY年M月D日` からゼロ埋めした `YYYY/MM/DD` へ変換する。
+- [x] 公開日、補助金名、申請受付期間、詳細URLを解析・整形する処理を実装する。
+- [x] 相対URLの絶対URL化と、指定3項目による重複除外を実装する。
+- [x] 最小HTMLを使った解析テストを作成する。
 
 検証: 2026年度だけの抽出、次年度での終了、公開日のゼロ埋め変換、期間表記3種類、期間なし、空白整理、相対URL、重複除外のpytest。
 
 完了判定: ネットワークやファイル出力を使わず、HTMLから期待するレコードを生成できること。
+
+Phase 2は完了。ユーザーから次フェーズの開始指示があるまで、Phase 3には進まない。
 
 ### Phase 3: Web取得とCSV保存
 
@@ -158,3 +160,4 @@ Phase 1で次を追記します。
 | --- | --- | --- | --- |
 | Phase 0 | 2026-08-23 | 文書間の参照先、`src` 方針、タスク分割、引継ぎルールを確認 | 完了 |
 | Phase 1 | 2026-08-23 | 各アクセス前に3秒待機。独自User-Agentで403、User-AgentだけをChrome相当へ変えて200。2026年度13件のHTML構造を確認 | 完了 |
+| Phase 2 | 2026-08-23 | Python 3.14.7でpytest 11件、ステートメント／分岐カバレッジ100%、Ruff check／format、保存済み実HTML13件の解析 | 完了 |
