@@ -14,6 +14,7 @@ from subsidy_scraper.app import (
     fetch_html,
     format_published_date,
     parse_subsidies,
+    run,
     save_subsidies_csv,
     split_name_and_period,
 )
@@ -32,6 +33,7 @@ __all__ = [
     "fetch_html",
     "format_published_date",
     "parse_subsidies",
+    "run",
     "save_subsidies_csv",
     "split_name_and_period",
 ]

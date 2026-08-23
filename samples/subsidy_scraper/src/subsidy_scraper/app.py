@@ -2,6 +2,7 @@
 
 import csv
 import re
+import sys
 import time
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -16,7 +17,7 @@ from bs4 import BeautifulSoup, Tag
 TARGET_YEAR = 2026
 TARGET_YEAR_LABEL = f"{TARGET_YEAR}年度"
 TARGET_URL = "https://www.chusho.meti.go.jp/koukai/hojyokin/kobo.html"
-CSV_FILENAME = "subsidy_kobo_2026.csv"
+CSV_FILENAME = "subsidy_kobo.csv"
 HTTP_WAIT_SECONDS = 3.0
 HTTP_TIMEOUT_SECONDS = 30.0
 USER_AGENT = (
@@ -301,3 +302,42 @@ def _parse_record(
         application_period=application_period,
         detail_url=urljoin(base_url, href),
     )
+
+
+def run() -> int:
+    """CLI処理を実行し、プロセス終了コードを返す。"""
+
+    print("補助金公募情報を取得します。")
+    print("3秒待機します。")
+    print("Webページを取得しています。")
+
+    try:
+        html = fetch_html()
+        records = parse_subsidies(html)
+        if not records:
+            raise NoSubsidiesError
+
+        print(f"{len(records)}件取得しました。")
+        saved_path = save_subsidies_csv(records)
+    except WebFetchError as exc:
+        print(exc, file=sys.stderr)
+        return 1
+    except TargetYearNotFoundError:
+        print(f"{TARGET_YEAR_LABEL}の情報を確認できませんでした。", file=sys.stderr)
+        print("サイト構造が変更された可能性があります。", file=sys.stderr)
+        return 1
+    except HtmlStructureError as exc:
+        print(f"公募情報を解析できませんでした: {exc}", file=sys.stderr)
+        print("サイト構造が変更された可能性があります。", file=sys.stderr)
+        return 1
+    except NoSubsidiesError:
+        print("公募情報を取得できませんでした。", file=sys.stderr)
+        print("サイト構造が変更された可能性があります。", file=sys.stderr)
+        return 1
+    except CsvSaveError as exc:
+        print(exc, file=sys.stderr)
+        return 1
+
+    print("CSVを保存しました。")
+    print(saved_path)
+    return 0

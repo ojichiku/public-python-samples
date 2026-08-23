@@ -1,4 +1,6 @@
-"""CLI entry point.
+"""補助金公募情報CSV取得ツールのエントリーポイント。"""
 
-The executable workflow will be added in Phase 4.
-"""
+from subsidy_scraper import run
+
+if __name__ == "__main__":
+    raise SystemExit(run())

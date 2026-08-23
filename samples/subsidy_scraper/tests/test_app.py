@@ -2,13 +2,17 @@
 
 import csv
 import io
+import runpy
 from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
 import requests
 
+import subsidy_scraper
+import subsidy_scraper.app as app_module
 from subsidy_scraper import (
+    CSV_FILENAME,
     HTTP_TIMEOUT_SECONDS,
     HTTP_WAIT_SECONDS,
     USER_AGENT,
@@ -21,11 +25,13 @@ from subsidy_scraper import (
     fetch_html,
     format_published_date,
     parse_subsidies,
+    run,
     save_subsidies_csv,
     split_name_and_period,
 )
 
 BASE_URL = "https://www.chusho.meti.go.jp/koukai/hojyokin/kobo.html"
+MAIN_PATH = Path(__file__).parents[1] / "main.py"
 
 
 def test_fetch_html_waits_before_one_request_with_fixed_conditions() -> None:
@@ -142,6 +148,155 @@ def test_save_subsidies_csv_converts_direct_write_error(tmp_path: Path) -> None:
         save_subsidies_csv([record], output_path)
 
     assert not output_path.exists()
+
+
+def test_run_completes_cli_workflow(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    record = SubsidyRecord("2026/08/20", "補助金", "随時", "https://example.com")
+    events: list[str] = []
+
+    def fake_fetch() -> str:
+        events.append("fetch")
+        return "<html></html>"
+
+    def fake_parse(html: str) -> list[SubsidyRecord]:
+        assert html == "<html></html>"
+        events.append("parse")
+        return [record]
+
+    def fake_save(records: list[SubsidyRecord]) -> Path:
+        assert records == [record]
+        events.append("save")
+        return Path(CSV_FILENAME)
+
+    monkeypatch.setattr(app_module, "fetch_html", fake_fetch)
+    monkeypatch.setattr(app_module, "parse_subsidies", fake_parse)
+    monkeypatch.setattr(app_module, "save_subsidies_csv", fake_save)
+
+    assert run() == 0
+    captured = capsys.readouterr()
+    assert captured.out.splitlines() == [
+        "補助金公募情報を取得します。",
+        "3秒待機します。",
+        "Webページを取得しています。",
+        "1件取得しました。",
+        "CSVを保存しました。",
+        CSV_FILENAME,
+    ]
+    assert captured.err == ""
+    assert events == ["fetch", "parse", "save"]
+
+
+def test_run_handles_web_fetch_error(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    parse_mock = Mock()
+    save_mock = Mock()
+    monkeypatch.setattr(
+        app_module,
+        "fetch_html",
+        Mock(side_effect=WebFetchError("Webページを取得できませんでした: 403")),
+    )
+    monkeypatch.setattr(app_module, "parse_subsidies", parse_mock)
+    monkeypatch.setattr(app_module, "save_subsidies_csv", save_mock)
+
+    assert run() == 1
+    captured = capsys.readouterr()
+    assert captured.err == "Webページを取得できませんでした: 403\n"
+    parse_mock.assert_not_called()
+    save_mock.assert_not_called()
+
+
+def test_run_handles_missing_target_year(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    save_mock = Mock()
+    monkeypatch.setattr(app_module, "fetch_html", Mock(return_value="html"))
+    monkeypatch.setattr(
+        app_module,
+        "parse_subsidies",
+        Mock(side_effect=TargetYearNotFoundError("2026年度がありません")),
+    )
+    monkeypatch.setattr(app_module, "save_subsidies_csv", save_mock)
+
+    assert run() == 1
+    captured = capsys.readouterr()
+    assert captured.err.splitlines() == [
+        "2026年度の情報を確認できませんでした。",
+        "サイト構造が変更された可能性があります。",
+    ]
+    save_mock.assert_not_called()
+
+
+def test_run_handles_other_html_structure_error(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    save_mock = Mock()
+    monkeypatch.setattr(app_module, "fetch_html", Mock(return_value="html"))
+    monkeypatch.setattr(
+        app_module,
+        "parse_subsidies",
+        Mock(side_effect=HtmlStructureError("一覧がありません")),
+    )
+    monkeypatch.setattr(app_module, "save_subsidies_csv", save_mock)
+
+    assert run() == 1
+    captured = capsys.readouterr()
+    assert captured.err.splitlines() == [
+        "公募情報を解析できませんでした: 一覧がありません",
+        "サイト構造が変更された可能性があります。",
+    ]
+    save_mock.assert_not_called()
+
+
+def test_run_handles_empty_records(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    save_mock = Mock()
+    monkeypatch.setattr(app_module, "fetch_html", Mock(return_value="html"))
+    monkeypatch.setattr(app_module, "parse_subsidies", Mock(return_value=[]))
+    monkeypatch.setattr(app_module, "save_subsidies_csv", save_mock)
+
+    assert run() == 1
+    captured = capsys.readouterr()
+    assert captured.err.splitlines() == [
+        "公募情報を取得できませんでした。",
+        "サイト構造が変更された可能性があります。",
+    ]
+    save_mock.assert_not_called()
+
+
+def test_run_handles_csv_save_error(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    record = SubsidyRecord("2026/08/20", "補助金", "随時", "https://example.com")
+    monkeypatch.setattr(app_module, "fetch_html", Mock(return_value="html"))
+    monkeypatch.setattr(app_module, "parse_subsidies", Mock(return_value=[record]))
+    monkeypatch.setattr(
+        app_module,
+        "save_subsidies_csv",
+        Mock(side_effect=CsvSaveError("CSVを保存できませんでした: 権限エラー")),
+    )
+
+    assert run() == 1
+    captured = capsys.readouterr()
+    assert captured.err == "CSVを保存できませんでした: 権限エラー\n"
+
+
+def test_root_main_returns_run_exit_code(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(subsidy_scraper, "run", Mock(return_value=7))
+
+    with pytest.raises(SystemExit) as exc_info:
+        runpy.run_path(str(MAIN_PATH), run_name="__main__")
+
+    assert exc_info.value.code == 7
 
 
 def test_parse_subsidies_extracts_only_2026_records() -> None:
