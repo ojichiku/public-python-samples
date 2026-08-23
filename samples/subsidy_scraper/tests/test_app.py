@@ -17,6 +17,7 @@ from subsidy_scraper import (
     HTTP_WAIT_SECONDS,
     USER_AGENT,
     CsvSaveError,
+    FetchedPage,
     HtmlStructureError,
     NoSubsidiesError,
     SubsidyRecord,
@@ -38,6 +39,7 @@ def test_fetch_html_waits_before_one_request_with_fixed_conditions() -> None:
     events: list[str] = []
     response = Mock(spec=requests.Response)
     response.text = "<html>取得結果</html>"
+    response.status_code = 200
 
     def fake_sleep(seconds: float) -> None:
         assert seconds == HTTP_WAIT_SECONDS
@@ -55,11 +57,31 @@ def test_fetch_html_waits_before_one_request_with_fixed_conditions() -> None:
         events.append("get")
         return response
 
-    html = fetch_html(BASE_URL, sleep=fake_sleep, get=fake_get)
+    fetched_page = fetch_html(BASE_URL, sleep=fake_sleep, get=fake_get)
 
-    assert html == "<html>取得結果</html>"
+    assert fetched_page == FetchedPage(
+        html="<html>取得結果</html>",
+        status_code=200,
+    )
     assert events == ["sleep", "get"]
+    assert response.encoding == "utf-8"
     response.raise_for_status.assert_called_once_with()
+
+
+def test_fetch_html_decodes_utf8_when_http_header_has_no_charset() -> None:
+    response = requests.Response()
+    response.status_code = 200
+    response.headers["Content-Type"] = "text/html"
+    response.encoding = "ISO-8859-1"
+    response._content = "<h2>2026年度</h2>".encode()
+
+    fetched_page = fetch_html(
+        sleep=lambda _: None,
+        get=lambda *args, **kwargs: response,
+    )
+
+    assert fetched_page.html == "<h2>2026年度</h2>"
+    assert response.encoding == "utf-8"
 
 
 @pytest.mark.parametrize(
@@ -91,10 +113,16 @@ def test_fetch_html_converts_request_errors(error: requests.RequestException) ->
 
 def test_fetch_html_converts_raise_for_status_error() -> None:
     response = Mock(spec=requests.Response)
-    response.raise_for_status.side_effect = requests.HTTPError("503 Server Error")
+    response.status_code = 503
+    response.raise_for_status.side_effect = requests.HTTPError(
+        "503 Server Error",
+        response=response,
+    )
 
-    with pytest.raises(WebFetchError, match="503 Server Error"):
+    with pytest.raises(WebFetchError, match="503 Server Error") as exc_info:
         fetch_html(sleep=lambda _: None, get=lambda *args, **kwargs: response)
+
+    assert exc_info.value.status_code == 503
 
 
 def test_save_subsidies_csv_writes_bom_header_and_records(tmp_path: Path) -> None:
@@ -119,7 +147,13 @@ def test_save_subsidies_csv_writes_bom_header_and_records(tmp_path: Path) -> Non
     content = output_path.read_bytes()
     assert saved_path == output_path
     assert content.startswith(b"\xef\xbb\xbf")
-    assert list(csv.reader(io.StringIO(content.decode("utf-8-sig")))) == [
+    decoded_content = content.decode("utf-8-sig")
+    assert decoded_content.splitlines() == [
+        '"公開日","補助金名","申請受付期間","詳細URL"',
+        '"2026/08/20","第一補助金, 特別枠","9/29～10/29","https://example.com/first.html"',
+        '"2026/07/08","第二補助金","","https://example.com/second.html"',
+    ]
+    assert list(csv.reader(io.StringIO(decoded_content))) == [
         ["公開日", "補助金名", "申請受付期間", "詳細URL"],
         [
             "2026/08/20",
@@ -157,9 +191,9 @@ def test_run_completes_cli_workflow(
     record = SubsidyRecord("2026/08/20", "補助金", "随時", "https://example.com")
     events: list[str] = []
 
-    def fake_fetch() -> str:
+    def fake_fetch() -> FetchedPage:
         events.append("fetch")
-        return "<html></html>"
+        return FetchedPage(html="<html></html>", status_code=200)
 
     def fake_parse(html: str) -> list[SubsidyRecord]:
         assert html == "<html></html>"
@@ -181,6 +215,7 @@ def test_run_completes_cli_workflow(
         "補助金公募情報を取得します。",
         "3秒待機します。",
         "Webページを取得しています。",
+        "HTTPステータス: 200",
         "1件取得しました。",
         "CSVを保存しました。",
         CSV_FILENAME,
@@ -189,23 +224,38 @@ def test_run_completes_cli_workflow(
     assert events == ["fetch", "parse", "save"]
 
 
+@pytest.mark.parametrize(
+    ("status_code", "expected_status"),
+    [(403, "403"), (None, "取得できませんでした。")],
+)
 def test_run_handles_web_fetch_error(
     monkeypatch: pytest.MonkeyPatch,
     capsys: pytest.CaptureFixture[str],
+    status_code: int | None,
+    expected_status: str,
 ) -> None:
     parse_mock = Mock()
     save_mock = Mock()
     monkeypatch.setattr(
         app_module,
         "fetch_html",
-        Mock(side_effect=WebFetchError("Webページを取得できませんでした: 403")),
+        Mock(
+            side_effect=WebFetchError(
+                "Webページを取得できませんでした: 取得エラー",
+                status_code=status_code,
+            )
+        ),
     )
     monkeypatch.setattr(app_module, "parse_subsidies", parse_mock)
     monkeypatch.setattr(app_module, "save_subsidies_csv", save_mock)
 
     assert run() == 1
     captured = capsys.readouterr()
-    assert captured.err == "Webページを取得できませんでした: 403\n"
+    assert captured.err.splitlines() == [
+        "エラー箇所: Webページ取得",
+        f"HTTPステータス: {expected_status}",
+        "Webページを取得できませんでした: 取得エラー",
+    ]
     parse_mock.assert_not_called()
     save_mock.assert_not_called()
 
@@ -215,7 +265,11 @@ def test_run_handles_missing_target_year(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     save_mock = Mock()
-    monkeypatch.setattr(app_module, "fetch_html", Mock(return_value="html"))
+    monkeypatch.setattr(
+        app_module,
+        "fetch_html",
+        Mock(return_value=FetchedPage(html="html", status_code=200)),
+    )
     monkeypatch.setattr(
         app_module,
         "parse_subsidies",
@@ -225,9 +279,13 @@ def test_run_handles_missing_target_year(
 
     assert run() == 1
     captured = capsys.readouterr()
+    assert captured.out.splitlines()[-1] == "HTTPステータス: 200"
     assert captured.err.splitlines() == [
-        "2026年度の情報を確認できませんでした。",
-        "サイト構造が変更された可能性があります。",
+        "エラー箇所: HTML解析（対象年度の確認）",
+        "対象年度: 2026年度",
+        "2026年度が取得したページ内に見つかりませんでした。",
+        f"対象URL: {BASE_URL}",
+        "確認項目: サイトの掲載年度、HTML構造、返されたページ内容",
     ]
     save_mock.assert_not_called()
 
@@ -237,7 +295,11 @@ def test_run_handles_other_html_structure_error(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     save_mock = Mock()
-    monkeypatch.setattr(app_module, "fetch_html", Mock(return_value="html"))
+    monkeypatch.setattr(
+        app_module,
+        "fetch_html",
+        Mock(return_value=FetchedPage(html="html", status_code=200)),
+    )
     monkeypatch.setattr(
         app_module,
         "parse_subsidies",
@@ -248,6 +310,7 @@ def test_run_handles_other_html_structure_error(
     assert run() == 1
     captured = capsys.readouterr()
     assert captured.err.splitlines() == [
+        "エラー箇所: HTML解析（公募一覧の構造）",
         "公募情報を解析できませんでした: 一覧がありません",
         "サイト構造が変更された可能性があります。",
     ]
@@ -259,13 +322,18 @@ def test_run_handles_empty_records(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     save_mock = Mock()
-    monkeypatch.setattr(app_module, "fetch_html", Mock(return_value="html"))
+    monkeypatch.setattr(
+        app_module,
+        "fetch_html",
+        Mock(return_value=FetchedPage(html="html", status_code=200)),
+    )
     monkeypatch.setattr(app_module, "parse_subsidies", Mock(return_value=[]))
     monkeypatch.setattr(app_module, "save_subsidies_csv", save_mock)
 
     assert run() == 1
     captured = capsys.readouterr()
     assert captured.err.splitlines() == [
+        "エラー箇所: HTML解析（取得件数）",
         "公募情報を取得できませんでした。",
         "サイト構造が変更された可能性があります。",
     ]
@@ -277,7 +345,11 @@ def test_run_handles_csv_save_error(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     record = SubsidyRecord("2026/08/20", "補助金", "随時", "https://example.com")
-    monkeypatch.setattr(app_module, "fetch_html", Mock(return_value="html"))
+    monkeypatch.setattr(
+        app_module,
+        "fetch_html",
+        Mock(return_value=FetchedPage(html="html", status_code=200)),
+    )
     monkeypatch.setattr(app_module, "parse_subsidies", Mock(return_value=[record]))
     monkeypatch.setattr(
         app_module,
@@ -287,7 +359,10 @@ def test_run_handles_csv_save_error(
 
     assert run() == 1
     captured = capsys.readouterr()
-    assert captured.err == "CSVを保存できませんでした: 権限エラー\n"
+    assert captured.err.splitlines() == [
+        "エラー箇所: CSV保存",
+        "CSVを保存できませんでした: 権限エラー",
+    ]
 
 
 def test_root_main_returns_run_exit_code(monkeypatch: pytest.MonkeyPatch) -> None:

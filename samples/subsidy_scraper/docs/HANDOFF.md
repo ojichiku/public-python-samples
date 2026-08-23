@@ -1,4 +1,4 @@
-# Phase 4 引継ぎ
+# Phase 5 引継ぎ
 
 ## 現在の目標とフェーズ
 
@@ -6,8 +6,8 @@
 - Phase 2「最小プロジェクトとHTML解析」: 完了
 - Phase 3「Web取得とCSV保存」: 完了
 - Phase 4「CLI統合とREADME」: 完了
-- Phase 5「品質確認と実サイトでの最終確認」: 未着手
-- 状態: ユーザーからのPhase 5開始指示待ち
+- Phase 5「品質確認と実サイトでの最終確認」: Excel確認待ち
+- 状態: 文字コード修正後の実サイト実行とダブルクォート形式のCSV検証まで完了。Excel確認が未完了
 
 ## 完了した作業
 
@@ -40,12 +40,17 @@
 - ルートの `main.py` を `run()` の戻り値で終了する薄いエントリーポイントにした。
 - `uv sync` と `uv run python main.py` を案内するREADMEを作成した。
 - CLI正常系、5種類の異常系、ルートエントリーポイントの7テストを追加した。
+- READMEにプロジェクトの準備、主要ファイルのディレクトリ構成、テストとコードチェックの実行方法を追加した。
+- 対象年度なしのエラー表示へ、対象URL、HTTP取得成功、確認すべき原因候補を追加した。
+- Web取得、HTML解析、CSV保存のエラー処理を分け、エラー箇所とHTTPステータスコードを表示するようにした。
+- `FetchedPage` で取得HTMLとHTTPステータスコードを保持するようにした。
+- 保存済み実HTMLとHTTPヘッダーを調査し、charset欠落により `requests` がISO-8859-1として本文をデコードしていたことを特定した。
+- 取得本文をUTF-8として扱い、2026年度見出しの文字化けを防ぐようにした。
+- CSVのヘッダーと全データフィールドをダブルクォーテーションで囲むようにした。
 
 ## 次の1手
 
-ユーザーから開始指示を受けた後、`PLANS.md` のPhase 5「品質確認と実サイトでの最終確認」に着手する。
-
-Phase 5では全自動検証、仕様照合、実装経由の3秒待機と実サイトへの1回のアクセス、生成CSVの確認を行う。実サイトへのアクセスはPhase 5開始指示を受けるまで行わない。
+生成された `subsidy_kobo.csv` をExcelで開き、日本語の文字化け、ヘッダー4列、データ行4列を人間が目視確認する。
 
 ## 確定した判断
 
@@ -69,28 +74,30 @@ Phase 5では全自動検証、仕様照合、実装経由の3秒待機と実サ
 
 ## 変更したファイル
 
-- `samples/subsidy_scraper/AGENTS.md`
 - `samples/subsidy_scraper/PLANS.md`
 - `samples/subsidy_scraper/README.md`
+- `.gitignore`
 - `samples/subsidy_scraper/docs/HANDOFF.md`
 - `samples/subsidy_scraper/docs/design.md`
 - `samples/subsidy_scraper/docs/requirements.md`
-- `samples/subsidy_scraper/main.py`
-- `samples/subsidy_scraper/pyproject.toml`
-- `samples/subsidy_scraper/requirements.txt`
-- `samples/subsidy_scraper/src/subsidy_scraper/__init__.py`
 - `samples/subsidy_scraper/src/subsidy_scraper/app.py`
+- `samples/subsidy_scraper/src/subsidy_scraper/__init__.py`
 - `samples/subsidy_scraper/tests/test_app.py`
-- `samples/subsidy_scraper/uv.lock`
 
 ## 検証結果
 
 - Python: 3.14.7
-- `uv run pytest`: 28件成功
+- `uv run pytest`: 30件成功
 - ステートメントカバレッジ: 100%
 - 分岐カバレッジ: 100%
 - `uv run ruff check .`: 成功
 - `uv run ruff format --check .`: 成功
+- `git diff --check`: 成功
+- 仕様書第23〜25節と完了条件の照合: Excel確認以外は適合
+- 初回の実サイト実行: HTTP取得後の解析で2026年度見出しを検出できず、終了コード1
+- 修正後の実サイトCSV: 13件を生成。UTF-8 BOM、ヘッダー4列、全データ行4列を確認
+- ダブルクォート形式: ヘッダーを含む全14行で、全フィールドがダブルクォーテーションで囲まれていることを確認
+- Excel確認: 未実施
 - Phase 1で保存した実HTMLのオフライン解析: 13件取得
 - 先頭レコードの公開日: `2026/08/20`
 - 最終レコードの公開日: `2026/04/15`
@@ -101,18 +108,16 @@ Phase 5では全自動検証、仕様照合、実装経由の3秒待機と実サ
 
 ## ブロッカーと注意点
 
-- 現在のブロッカーはない。
-- ルートの `main.py` は完成済み。実サイトを使う起動確認はPhase 5で行う。
+- 実サイト応答のHTTPヘッダーにcharsetがなく、`requests` がISO-8859-1として日本語を文字化けさせた問題は修正済み。
+- 現在のブロッカーはなく、人間によるExcel確認待ち。
 - 403、429などが返った場合、アクセス制限を回避する処理を追加しないこと。
 - 通常の `uv run` はホーム配下のuvキャッシュが読み取り専用で失敗するため、検証では `UV_CACHE_DIR=/tmp/uv-cache UV_OFFLINE=1` を付けた。
-- `samples/subsidy_scraper/subsidy_kobo.csv` は現時点で存在しない。Phase 5の実サイト確認ではツールディレクトリをカレントディレクトリとして実行し、生成後に内容を確認する。
-- Phase 5の実サイト確認は、実装経由の3秒待機と一覧ページへの1回のアクセスだけに限定する。
+- `samples/subsidy_scraper/subsidy_kobo.csv` は生成済みで、`.gitignore` の対象にした。
 
 ## Git状態
 
 - ブランチ: `main`
-- 最新コミット: `8702727 feat: 補助金スクレイパーの取得保存処理と設計書を追加`
-- Phase 3はコミット `8702727` まで完了
-- Phase 4の変更は未コミット
-- 変更済み: `AGENTS.md`、`PLANS.md`、`docs/HANDOFF.md`、`docs/design.md`、`docs/requirements.md`、`main.py`、`src/subsidy_scraper/__init__.py`、`src/subsidy_scraper/app.py`、`tests/test_app.py`
-- 未追跡: `README.md`
+- 最新コミット: `23b47ee feat: 補助金スクレイパーのCLIを完成`
+- Phase 4はコミット済み
+- Phase 5で変更済み: `.gitignore`、`PLANS.md`、`README.md`、`docs/`、`src/`、`tests/`
+- `subsidy_kobo.csv` は生成済みでGit管理対象外

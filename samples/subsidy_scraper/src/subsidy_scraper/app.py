@@ -46,6 +46,12 @@ class TargetYearNotFoundError(HtmlStructureError):
 class WebFetchError(RuntimeError):
     """Webページを取得できない場合のエラー。"""
 
+    def __init__(self, message: str, status_code: int | None = None) -> None:
+        """エラーメッセージと、取得できた場合のHTTPステータスを保持する。"""
+
+        super().__init__(message)
+        self.status_code = status_code
+
 
 class NoSubsidiesError(RuntimeError):
     """CSVへ保存できる公募情報が1件もない場合のエラー。"""
@@ -65,12 +71,20 @@ class SubsidyRecord:
     detail_url: str
 
 
+@dataclass(frozen=True, slots=True)
+class FetchedPage:
+    """取得したHTMLとHTTPステータス。"""
+
+    html: str
+    status_code: int
+
+
 def fetch_html(
     url: str = TARGET_URL,
     *,
     sleep: Callable[[float], None] = time.sleep,
     get: Callable[..., requests.Response] = requests.get,
-) -> str:
+) -> FetchedPage:
     """3秒待機した後、固定条件で一覧ページを1回だけ取得する。
 
     Args:
@@ -79,7 +93,7 @@ def fetch_html(
         get: テストでHTTPアクセスを差し替えるための関数。
 
     Returns:
-        取得したHTML。
+        取得したHTMLとHTTPステータス。
 
     Raises:
         WebFetchError: HTTPエラー、タイムアウト、接続エラーなどの場合。
@@ -94,9 +108,16 @@ def fetch_html(
         )
         response.raise_for_status()
     except requests.RequestException as exc:
-        raise WebFetchError(f"Webページを取得できませんでした: {exc}") from exc
+        status_code = exc.response.status_code if exc.response is not None else None
+        raise WebFetchError(
+            f"Webページを取得できませんでした: {exc}",
+            status_code=status_code,
+        ) from exc
 
-    return response.text
+    # 対象ページはHTMLでUTF-8を宣言している一方、HTTPヘッダーにcharsetがないため、
+    # requestsの既定判定（ISO-8859-1）による日本語の文字化けを防ぎます。
+    response.encoding = "utf-8"
+    return FetchedPage(html=response.text, status_code=response.status_code)
 
 
 def save_subsidies_csv(
@@ -126,7 +147,7 @@ def save_subsidies_csv(
 
     try:
         with destination.open("w", encoding="utf-8-sig", newline="") as csv_file:
-            writer = csv.writer(csv_file)
+            writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
             writer.writerow(CSV_HEADERS)
             writer.writerows(
                 (
@@ -312,29 +333,51 @@ def run() -> int:
     print("Webページを取得しています。")
 
     try:
-        html = fetch_html()
-        records = parse_subsidies(html)
-        if not records:
-            raise NoSubsidiesError
-
-        print(f"{len(records)}件取得しました。")
-        saved_path = save_subsidies_csv(records)
+        fetched_page = fetch_html()
     except WebFetchError as exc:
+        print("エラー箇所: Webページ取得", file=sys.stderr)
+        if exc.status_code is None:
+            print("HTTPステータス: 取得できませんでした。", file=sys.stderr)
+        else:
+            print(f"HTTPステータス: {exc.status_code}", file=sys.stderr)
         print(exc, file=sys.stderr)
         return 1
+
+    print(f"HTTPステータス: {fetched_page.status_code}", flush=True)
+
+    try:
+        records = parse_subsidies(fetched_page.html)
     except TargetYearNotFoundError:
-        print(f"{TARGET_YEAR_LABEL}の情報を確認できませんでした。", file=sys.stderr)
-        print("サイト構造が変更された可能性があります。", file=sys.stderr)
+        print("エラー箇所: HTML解析（対象年度の確認）", file=sys.stderr)
+        print(f"対象年度: {TARGET_YEAR_LABEL}", file=sys.stderr)
+        print(
+            f"{TARGET_YEAR_LABEL}が取得したページ内に見つかりませんでした。",
+            file=sys.stderr,
+        )
+        print(f"対象URL: {TARGET_URL}", file=sys.stderr)
+        print(
+            "確認項目: サイトの掲載年度、HTML構造、返されたページ内容",
+            file=sys.stderr,
+        )
         return 1
     except HtmlStructureError as exc:
+        print("エラー箇所: HTML解析（公募一覧の構造）", file=sys.stderr)
         print(f"公募情報を解析できませんでした: {exc}", file=sys.stderr)
         print("サイト構造が変更された可能性があります。", file=sys.stderr)
         return 1
-    except NoSubsidiesError:
+
+    if not records:
+        print("エラー箇所: HTML解析（取得件数）", file=sys.stderr)
         print("公募情報を取得できませんでした。", file=sys.stderr)
         print("サイト構造が変更された可能性があります。", file=sys.stderr)
         return 1
+
+    print(f"{len(records)}件取得しました。")
+
+    try:
+        saved_path = save_subsidies_csv(records)
     except CsvSaveError as exc:
+        print("エラー箇所: CSV保存", file=sys.stderr)
         print(exc, file=sys.stderr)
         return 1
 

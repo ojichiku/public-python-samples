@@ -62,6 +62,7 @@ samples/password-generator-cli/release/PasswordGeneratorCLI
 samples/password-generator-cli/release/*.zip
 samples/password-generator-gui/release/PasswordGeneratorGUI
 samples/password-generator-gui/release/*.zip
+samples/subsidy_scraper/subsidy_kobo.csv
 
 work/
 
