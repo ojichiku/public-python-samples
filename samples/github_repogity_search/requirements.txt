@@ -1,0 +1,2 @@
+# uv利用時はpyproject.tomlとuv.lockを使用します。
+playwright>=1.58,<2

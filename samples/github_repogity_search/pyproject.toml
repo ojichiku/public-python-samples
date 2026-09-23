@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "github-repository-search"
+version = "0.1.0"
+description = "インストール済みEdgeとPlaywrightでGitHubを検索するサンプル"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = ["playwright>=1.58,<2"]
+
+[project.scripts]
+github-repository-search = "github_repository_search.main:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/github_repository_search"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["edge: インストール済みMicrosoft Edgeが必要なDOMテスト"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
